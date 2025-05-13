@@ -33,12 +33,11 @@ class FullscreenAd(private val sdkFullscreenAd: FullscreenAd) {
         // existing ad logic. For this example, we send all requests to the
         // runtime-enabled sandboxed SDK as long as it exists.
         suspend fun create(
-            context: Context,
-            mediationType: String
+            context: Context
         ): com.runtimeaware.sdk.FullscreenAd {
             if (ExistingSdk.isSdkLoaded()) {
                 val remoteFullscreenAd =
-                    ExistingSdk.loadSdkIfNeeded(context)?.getFullscreenAd(mediationType)
+                    ExistingSdk.loadSdkIfNeeded(context)?.getFullscreenAd()
                 if (remoteFullscreenAd != null)
                     return FullscreenAd(remoteFullscreenAd)
             }

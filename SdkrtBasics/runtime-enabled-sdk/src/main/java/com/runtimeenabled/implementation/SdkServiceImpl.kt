@@ -46,18 +46,9 @@ import kotlinx.coroutines.launch
 
 class SdkServiceImpl(private val context: Context) : SdkService {
 
-//    private var inAppMediateeAdapter: MediateeAdapterInterface? = null
-//    private var mediateeAdapter: MediateeAdapterInterface? = null
-
-//    private val adapterSdkName = "com.mediateeadapter.sdk"
-//    private val mediateeSdkName = "com.mediatee.sdk"
     private val tag = "RuntimeEnabledSdk"
 
     override suspend fun initialise() {
-//        val sandboxController = SdkSandboxControllerCompat.from(context)
-//        sandboxController.loadSdk(mediateeSdkName, Bundle.EMPTY)
-        // Adapter should only be loaded after Mediatee is loaded.
-//        sandboxController.loadSdk(adapterSdkName, Bundle.EMPTY)
     }
 
     override suspend fun getMessage(): String = "Hello from Runtime-enabled SDK!"
@@ -85,101 +76,16 @@ class SdkServiceImpl(private val context: Context) : SdkService {
     // another SDK), return type for getBanner will always be a Bundle.
     @OptIn(ExperimentalFeatures.DelegatingAdapterApi::class)
     override suspend fun getBanner(
-        request: SdkBannerRequest,
-        mediationType: String
+        request: SdkBannerRequest
     ): Bundle? {
-//        if (mediationType == context.getString(R.string.mediation_option_refresh_mediated_ads)) {
-//            val runtimeMediateeBanner = SandboxedUiAdapterFactory.createFromCoreLibInfo(checkNotNull(
-//                mediateeAdapter?.getBannerAd(
-//                    request.appPackageName,
-//                    request.activityLauncher,
-//                    request.isWebViewBannerAd
-//                )
-//            ) { "No banner Ad received from mediatee!" })
-//            // DelegatingSandboxedUiAdapter enables updating delegate from which different ads
-//            // can be served without the client's involvement.
-//            val delegatingAdapter = DelegatingSandboxedUiAdapter(
-//                SdkSandboxedUiAdapterImpl(
-//                    context,
-//                    request,
-//                    runtimeMediateeBanner
-//                ).toCoreLibInfo(context)
-//            )
-//            // Launches a function to refresh the ad after a few seconds
-//            CoroutineScope(Dispatchers.IO).launch {
-//                updateDelegateAfterSomeDelay(request, delegatingAdapter);
-//            }
-//            return delegatingAdapter.toCoreLibInfo(context)
-//        }
-//        if (mediationType == context.getString(R.string.mediation_option_none)) {
-            val bannerAdAdapter = SdkSandboxedUiAdapterImpl(context, request)//, null)
-            bannerAdAdapter.addObserverFactory(SessionObserverFactoryImpl())
-            return bannerAdAdapter.toCoreLibInfo(context)
-//        }
-        // For In-app mediatee, SandboxedUiAdapter returned by mediatee is not wrapped, it is
-        // directly returned to app. This is to avoid nested remote rendering.
-        // There is no overlay in this case for this reason.
-//        if (mediationType == context.getString(R.string.mediation_option_inapp_mediatee)) {
-//            return inAppMediateeAdapter?.getBannerAd(
-//                        request.appPackageName,
-//                        request.activityLauncher,
-//                        request.isWebViewBannerAd
-//                    )
-//        }
-//        return SdkSandboxedUiAdapterImpl(
-//            context,
-//            request,
-//            SandboxedUiAdapterFactory.createFromCoreLibInfo(checkNotNull(
-//                mediateeAdapter?.getBannerAd(
-//                    request.appPackageName,
-//                    request.activityLauncher,
-//                    request.isWebViewBannerAd
-//                )
-//            ) { "No banner Ad received from mediatee!" })
-//        ).toCoreLibInfo(context)
+        val bannerAdAdapter = SdkSandboxedUiAdapterImpl(context, request)
+        bannerAdAdapter.addObserverFactory(SessionObserverFactoryImpl())
+        return bannerAdAdapter.toCoreLibInfo(context)
     }
 
-//    private suspend fun updateDelegateAfterSomeDelay(
-//        request: SdkBannerRequest,
-//        delegatingAdapter: DelegatingSandboxedUiAdapter
-//    ) {
-//        delay(10000)
-//        val inAppMediateeBanner = inAppMediateeAdapter?.getBannerAd(
-//            request.appPackageName,
-//            request.activityLauncher,
-//            request.isWebViewBannerAd
-//        )
-//        // Refresh the ad to show ads from another mediatee
-//        if (inAppMediateeBanner != null) {
-//            delegatingAdapter.updateDelegate(inAppMediateeBanner)
-//        }
-//    }
-
-    override suspend fun getFullscreenAd(mediationType: String): FullscreenAd {
-//        if (mediationType == context.getString(R.string.mediation_option_none)) {
-            return FullscreenAdImpl(context)//, null, false)
-//        }
-//        val adapter: MediateeAdapterInterface?
-//        if (mediationType == context.getString(R.string.mediation_option_inapp_mediatee)) {
-//            inAppMediateeAdapter
-//                ?: throw RemoteException("In-App mediatee SDK not registered with mediator SDK!")
-//            adapter = inAppMediateeAdapter
-//        } else {
-//            mediateeAdapter
-//                ?: throw RemoteException("Mediatee SDK not registered with mediator SDK!")
-//            adapter = mediateeAdapter
-//        }
-//        adapter?.loadFullscreenAd()
-//        return FullscreenAdImpl(context, adapter, true)
+    override suspend fun getFullscreenAd(): FullscreenAd {
+        return FullscreenAdImpl(context)
     }
-
-//    override fun registerMediateeAdapter(mediateeAdapter: MediateeAdapterInterface) {
-//        this.mediateeAdapter = mediateeAdapter
-//    }
-//
-//    override fun registerInAppMediateeAdapter(mediateeAdapter: MediateeAdapterInterface) {
-//        inAppMediateeAdapter = mediateeAdapter
-//    }
 }
 
 /**

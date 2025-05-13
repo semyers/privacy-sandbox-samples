@@ -21,7 +21,6 @@ import androidx.privacysandbox.tools.PrivacySandboxService
 @PrivacySandboxService
 interface SdkService {
 
-    /** Loads Mediatee and Adapter SDKs. */
     suspend fun initialise()
 
     suspend fun getMessage(): String
@@ -37,19 +36,7 @@ interface SdkService {
      * this will need to be returned in a Bundle (one SDK cannot use a shim object defined by
      * another SDK), return type for getBanner will always be a Bundle.
      */
-    suspend fun getBanner(request: SdkBannerRequest, mediationType: String): Bundle?
+    suspend fun getBanner(request: SdkBannerRequest): Bundle?
 
-    suspend fun getFullscreenAd(mediationType: String): FullscreenAd
-
-//    /**
-//     * Registers the Runtime-enabled mediatee adapter so that it can be used by the Mediator later
-//     * to show ads.
-//     */
-//    fun registerMediateeAdapter(mediateeAdapter: MediateeAdapterInterface)
-//
-//    /**
-//     * Registers the In-App mediatee adapter so that it can be used by the Mediator later
-//     * to show ads.
-//     */
-//    fun registerInAppMediateeAdapter(mediateeAdapter: MediateeAdapterInterface)
+    suspend fun getFullscreenAd(): FullscreenAd
 }

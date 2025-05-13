@@ -50,12 +50,10 @@ import kotlin.random.Random
  *
  * @param sdkContext The context of the SDK.
  * @param request The banner ad request.
- * @param mediateeAdapter The UI adapter for a mediatee SDK, if applicable.
  */
 class SdkSandboxedUiAdapterImpl(
     private val sdkContext: Context,
     private val request: SdkBannerRequest,
-//    private val mediateeAdapter: SandboxedUiAdapter?
 ) : AbstractSandboxedUiAdapter(), SdkSandboxedUiAdapter {
     /**
      * Opens a new session to display remote UI.
@@ -79,7 +77,7 @@ class SdkSandboxedUiAdapterImpl(
         clientExecutor: Executor,
         client: SandboxedUiAdapter.SessionClient
     ) {
-        val session = SdkUiSession(clientExecutor, sdkContext, request)//, mediateeAdapter)
+        val session = SdkUiSession(clientExecutor, sdkContext, request)
         clientExecutor.execute {
             client.onSessionOpened(session)
         }
@@ -94,13 +92,11 @@ class SdkSandboxedUiAdapterImpl(
  * @param clientExecutor The executor to use for client callbacks.
  * @param sdkContext The context of the SDK.
  * @param request The banner ad request.
- * @param mediateeAdapter The UI adapter for a mediatee SDK, if applicable.
  */
 private class SdkUiSession(
     clientExecutor: Executor,
     private val sdkContext: Context,
     private val request: SdkBannerRequest,
-//    private val mediateeSandboxedUiAdapter: SandboxedUiAdapter?
 ) : AbstractSandboxedUiAdapter.AbstractSession() {
 
     private val controller = SdkSandboxControllerCompat.from(sdkContext)
@@ -115,22 +111,6 @@ private class SdkUiSession(
     override val view: View = getAdView()
 
     private fun getAdView() : View {
-//        if (mediateeSandboxedUiAdapter != null) {
-//            // The Mediator (runtime-enabled-sdk) view contains a SandboxedSdkView that is being populated
-//            // with the ad view from the Runtime enabled Mediatee, which runs in the same process
-//            // as the Mediator. The view also has an overlay from the Mediator sdk. This will be
-//            // sent to the Publisher as a SandboxedUiAdapter by the Mediator.
-//            return View.inflate(sdkContext, R.layout.banner, null).apply {
-//                val adLayout = findViewById<LinearLayout>(R.id.ad_layout)
-//                adLayout.removeView(findViewById(R.id.click_ad_header))
-//                val textView = findViewById<TextView>(R.id.banner_header_view)
-//                textView.text =
-//                    context.getString(R.string.banner_ad_label, request.appPackageName)
-//                val ssv = SandboxedSdkView(context)
-//                ssv.setAdapter(mediateeSandboxedUiAdapter)
-//                adLayout.addView(ssv)
-//            }
-//        }
         if (request.isWebViewBannerAd) {
             val webview = WebView(sdkContext)
             webview.loadUrl(urls[Random.nextInt(urls.size)])

@@ -133,21 +133,16 @@ class MainActivity : AppCompatActivity() {
         // certain game scenes, video playback, etc).
         val loadWebView = adTypes[adTypeSpinner.selectedItemPosition].contains("WebView")
         // Mediated Banner Ad is shown when RUNTIME_MEDIATEE Mediation option is chosen.
-        val mediationType =
-            MediationOption.entries[mediationDropDownMenu.selectedItemId.toInt()].toString()
         bannerAd.loadAd(
             this@MainActivity,
             PACKAGE_NAME,
             shouldStartActivityPredicate(),
-            loadWebView,
-            mediationType
+            loadWebView
         )
     }
 
     private fun showFullscreenView() = lifecycleScope.launch {
-        val mediationType =
-            MediationOption.entries[mediationDropDownMenu.selectedItemId.toInt()].toString()
-        val fullscreenAd = FullscreenAd.create(this@MainActivity, mediationType)
+        val fullscreenAd = FullscreenAd.create(this@MainActivity)
         fullscreenAd.show(this@MainActivity, shouldStartActivityPredicate())
     }
 
