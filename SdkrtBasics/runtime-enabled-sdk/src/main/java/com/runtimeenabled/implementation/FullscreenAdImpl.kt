@@ -30,7 +30,6 @@ import androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 import com.runtimeenabled.api.FullscreenAd
-import com.runtimeenabled.api.MediateeAdapterInterface
 
 class FullscreenAdImpl(private val sdkContext: Context,
 ) : FullscreenAd {

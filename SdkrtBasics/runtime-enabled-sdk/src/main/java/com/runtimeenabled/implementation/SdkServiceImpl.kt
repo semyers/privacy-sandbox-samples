@@ -39,10 +39,6 @@ import androidx.privacysandbox.ui.core.SessionObserver
 import androidx.privacysandbox.ui.core.SessionObserverContext
 import androidx.privacysandbox.ui.core.SessionObserverFactory
 import androidx.privacysandbox.ui.provider.toCoreLibInfo
-import com.runtimeenabled.api.MediateeAdapterInterface
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 class SdkServiceImpl(private val context: Context) : SdkService {
 

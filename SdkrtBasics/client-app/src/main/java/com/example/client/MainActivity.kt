@@ -54,26 +54,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var adTypeSpinner: Spinner
     private val adTypes = listOf("Banner", "WebView Banner")
 
-    /** A spinner for selecting the mediation option. */
-    private lateinit var mediationDropDownMenu: Spinner
-
-    // Mediation Option values.
-    // Please keep the order here the same as the order in which the options occur in the
-    // mediation_dropdown_menu_array.
-    //
-    // As SDKs transition into the SDK Runtime, we may have some SDKs still in the app process
-    // while the mediator and other SDKs have moved.
-    // RUNTIME_MEDIATEE Mediated Ads is the scenario when the winning ad network is Runtime Enabled
-    // as is the Mediator.
-    // INAPP_MEDIATEE Mediated Ads is the scenario when the winning ad network is running in the
-    // same process as the app and the Mediator is Runtime Enabled.
-    enum class MediationOption {
-        NONE,
-//        RUNTIME_MEDIATEE,
-//        INAPP_MEDIATEE,
-//        REFRESH_MEDIATED_ADS
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -105,16 +85,13 @@ class MainActivity : AppCompatActivity() {
                 this@MainActivity, android.R.layout.simple_spinner_dropdown_item, adTypes)
         }
 
-        mediationDropDownMenu = findViewById(R.id.mediation_options_dropdown)
-
-        ArrayAdapter.createFromResource(
-            this@MainActivity,
-            R.array.mediation_dropdown_menu_array,
-            android.R.layout.simple_spinner_item
-        ).also { adapter ->
-            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            mediationDropDownMenu.adapter = adapter
-        }
+//        ArrayAdapter.createFromResource(
+//            this@MainActivity,
+//            R.array.mediation_dropdown_menu_array,
+//            android.R.layout.simple_spinner_item
+//        ).also { adapter ->
+//            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+//        }
 
     }
 
