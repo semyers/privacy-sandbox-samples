@@ -85,14 +85,6 @@ class MainActivity : AppCompatActivity() {
                 this@MainActivity, android.R.layout.simple_spinner_dropdown_item, adTypes)
         }
 
-//        ArrayAdapter.createFromResource(
-//            this@MainActivity,
-//            R.array.mediation_dropdown_menu_array,
-//            android.R.layout.simple_spinner_item
-//        ).also { adapter ->
-//            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-//        }
-
     }
 
     private fun onInitializeSkButtonPressed() = lifecycleScope.launch {
@@ -109,7 +101,6 @@ class MainActivity : AppCompatActivity() {
         // launches whenever they feel SDKs shouldn't be launching activities (in the middle of
         // certain game scenes, video playback, etc).
         val loadWebView = adTypes[adTypeSpinner.selectedItemPosition].contains("WebView")
-        // Mediated Banner Ad is shown when RUNTIME_MEDIATEE Mediation option is chosen.
         bannerAd.loadAd(
             this@MainActivity,
             PACKAGE_NAME,

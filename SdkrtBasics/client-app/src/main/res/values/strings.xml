@@ -12,7 +12,7 @@
      limitations under the License.
 -->
 <resources>
-  <string name="app_name">Privacy Sandbox App Sample</string>
+  <string name="app_name">SDK Runtime Sample App</string>
   <string name="create_file_size_label">File size: </string>
   <string name="create_file_button_label">Create file in SDK Runtime</string>
   <string name="initialize_sdk_button_label">Initialize SDK</string>
