@@ -17,28 +17,21 @@ package com.runtimeenabled.implementation
 
 import android.content.Context
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.RemoteException
 import android.util.Log
-import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
-import androidx.privacysandbox.ui.client.SandboxedUiAdapterFactory
-import androidx.privacysandbox.ui.core.DelegatingSandboxedUiAdapter
 import androidx.privacysandbox.ui.core.ExperimentalFeatures
-import com.runtimeenabled.R
+import androidx.privacysandbox.ui.core.SandboxedSdkViewUiInfo
+import androidx.privacysandbox.ui.core.SessionObserver
+import androidx.privacysandbox.ui.core.SessionObserverContext
+import androidx.privacysandbox.ui.core.SessionObserverFactory
 import com.runtimeenabled.api.FullscreenAd
 import com.runtimeenabled.api.SdkBannerRequest
+import com.runtimeenabled.api.SdkSandboxedUiAdapter
 import com.runtimeenabled.api.SdkService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
-import androidx.privacysandbox.ui.core.SandboxedSdkViewUiInfo
-import androidx.privacysandbox.ui.core.SessionObserver
-import androidx.privacysandbox.ui.core.SessionObserverContext
-import androidx.privacysandbox.ui.core.SessionObserverFactory
-import androidx.privacysandbox.ui.provider.toCoreLibInfo
 
 class SdkServiceImpl(private val context: Context) : SdkService {
 
@@ -65,18 +58,13 @@ class SdkServiceImpl(private val context: Context) : SdkService {
         return "Created $actualFileSize MB file successfully"
     }
 
-    // We return a Bundle here, not an interface that extends SandboxedUiAdapter. This is because
-    // for in app mediatees, the SandboxedUiAdapter received from the mediatee is directly returned
-    // by the mediator to the app, without any wrapper, to avoid nested remote rendering. Since
-    // this will need to be returned in a Bundle (one SDK cannot use a shim object defined by
-    // another SDK), return type for getBanner will always be a Bundle.
     @OptIn(ExperimentalFeatures.DelegatingAdapterApi::class)
     override suspend fun getBanner(
         request: SdkBannerRequest
-    ): Bundle? {
+    ): SdkSandboxedUiAdapter {
         val bannerAdAdapter = SdkSandboxedUiAdapterImpl(context, request)
         bannerAdAdapter.addObserverFactory(SessionObserverFactoryImpl())
-        return bannerAdAdapter.toCoreLibInfo(context)
+        return bannerAdAdapter
     }
 
     override suspend fun getFullscreenAd(): FullscreenAd {
