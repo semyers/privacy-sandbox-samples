@@ -105,13 +105,18 @@ class MainActivity : AppCompatActivity() {
             this@MainActivity,
             PACKAGE_NAME,
             shouldStartActivityPredicate(),
-            loadWebView
+            loadWebView,
+            onPaymentComplete()
         )
     }
 
     private fun showFullscreenView() = lifecycleScope.launch {
         val fullscreenAd = FullscreenAd.create(this@MainActivity)
         fullscreenAd.show(this@MainActivity, shouldStartActivityPredicate())
+    }
+
+    private fun onPaymentComplete() : () -> Unit {
+        return { makeToast("Payment complete!") }
     }
 
     private fun shouldStartActivityPredicate() : () -> Boolean {

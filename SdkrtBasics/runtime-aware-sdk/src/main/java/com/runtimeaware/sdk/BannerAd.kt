@@ -35,12 +35,15 @@ class BannerAd(context: Context, attrs: AttributeSet) : LinearLayout(context, at
         baseActivity: AppCompatActivity,
         clientMessage: String,
         allowSdkActivityLaunch: () -> Boolean,
-        shouldLoadWebView: Boolean) {
+        shouldLoadWebView: Boolean,
+        onPaymentComplete: () -> Unit
+    ) {
         val bannerAd = getBannerAdFromRuntimeEnabledSdkIfExists(
             baseActivity,
             clientMessage,
             allowSdkActivityLaunch,
-            shouldLoadWebView
+            shouldLoadWebView,
+            onPaymentComplete
         )
         if (bannerAd != null) {
             val sandboxedSdkView = SandboxedSdkView(context)
@@ -58,7 +61,9 @@ class BannerAd(context: Context, attrs: AttributeSet) : LinearLayout(context, at
         baseActivity: AppCompatActivity,
         message: String,
         allowSdkActivityLaunch: () -> Boolean,
-        shouldLoadWebView: Boolean): SandboxedUiAdapter? {
+        shouldLoadWebView: Boolean,
+        onPaymentComplete: () -> Unit
+    ): SandboxedUiAdapter? {
         if (!ExistingSdk.isSdkLoaded()) {
             return null
         }
@@ -68,7 +73,7 @@ class BannerAd(context: Context, attrs: AttributeSet) : LinearLayout(context, at
         return checkNotNull(
                 ExistingSdk.loadSdkIfNeeded(
                     context
-                )?.getBanner(request)
+                )?.getBanner(request, PaymentCallback(onPaymentComplete))
             ) { "No banner Ad received from ad SDK!" }
     }
 

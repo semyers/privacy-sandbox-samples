@@ -18,20 +18,17 @@ package com.runtimeenabled.implementation
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
-import android.os.IBinder
 import android.view.View
 import android.webkit.WebView
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
-import androidx.privacysandbox.ui.client.view.SandboxedSdkView
-import androidx.privacysandbox.ui.core.DelegatingSandboxedUiAdapter
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 import androidx.privacysandbox.ui.core.SessionData
 import androidx.privacysandbox.ui.provider.AbstractSandboxedUiAdapter
 import com.runtimeenabled.R
+import com.runtimeenabled.api.PaymentCallbackInterface
 import com.runtimeenabled.api.SdkBannerRequest
 import com.runtimeenabled.api.SdkSandboxedUiAdapter
 import kotlinx.coroutines.CoroutineScope
@@ -54,6 +51,7 @@ import kotlin.random.Random
 class SdkSandboxedUiAdapterImpl(
     private val sdkContext: Context,
     private val request: SdkBannerRequest,
+    private val callback: PaymentCallbackInterface,
 ) : AbstractSandboxedUiAdapter(), SdkSandboxedUiAdapter {
     /**
      * Opens a new session to display remote UI.
@@ -77,7 +75,7 @@ class SdkSandboxedUiAdapterImpl(
         clientExecutor: Executor,
         client: SandboxedUiAdapter.SessionClient
     ) {
-        val session = SdkUiSession(clientExecutor, sdkContext, request)
+        val session = SdkUiSession(clientExecutor, sdkContext, request, callback)
         clientExecutor.execute {
             client.onSessionOpened(session)
         }
@@ -97,6 +95,7 @@ private class SdkUiSession(
     clientExecutor: Executor,
     private val sdkContext: Context,
     private val request: SdkBannerRequest,
+    private val callback: PaymentCallbackInterface,
 ) : AbstractSandboxedUiAdapter.AbstractSession() {
 
     private val controller = SdkSandboxControllerCompat.from(sdkContext)
@@ -113,7 +112,10 @@ private class SdkUiSession(
     private fun getAdView() : View {
         if (request.isWebViewBannerAd) {
             val webview = WebView(sdkContext)
-            webview.loadUrl(urls[Random.nextInt(urls.size)])
+            webview.getSettings().setJavaScriptEnabled(true);
+            val unencodedHtml =
+                "<html><body><button onclick='this.innerText=\"Account Linked\"'>Link Account</button></body></html>"
+            webview.loadData(unencodedHtml, "text/html", "utf-8")
             return webview
         }
         return View.inflate(sdkContext, R.layout.banner, null).apply {
@@ -122,7 +124,10 @@ private class SdkUiSession(
                 context.getString(R.string.banner_ad_label, request.appPackageName)
 
             setOnClickListener {
-                launchActivity()
+                scope.launch {
+                    callback.onPaymentComplete()
+                }
+                //launchActivity()
             }
         }
     }

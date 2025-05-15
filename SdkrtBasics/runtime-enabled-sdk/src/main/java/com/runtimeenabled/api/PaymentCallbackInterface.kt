@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 The Android Open Source Project
+ * Copyright (C) 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,18 +15,20 @@
  */
 package com.runtimeenabled.api
 
-import androidx.privacysandbox.tools.PrivacySandboxService
+import androidx.privacysandbox.tools.PrivacySandboxCallback
 
-@PrivacySandboxService
-interface SdkService {
+/**
+ * Common interface to be implemented by Adapters.
+ *
+ * Runtime-enabled Adapters will register an object that implements this interface with the
+ * Mediator.
+ * In-App Adapters will implement this interface and be initialised and registered with Mediator
+ * from the App.
+ *
+ * This interface will then be used by the Mediator to communicate with the Mediatees to show ads.
+ */
+@PrivacySandboxCallback
+interface PaymentCallbackInterface {
 
-    suspend fun initialise()
-
-    suspend fun getMessage(): String
-
-    suspend fun createFile(sizeInMb: Int): String
-
-    suspend fun getBanner(request: SdkBannerRequest, callback: PaymentCallbackInterface): SdkSandboxedUiAdapter
-
-    suspend fun getFullscreenAd(): FullscreenAd
+    suspend fun onPaymentComplete()
 }
