@@ -33,10 +33,20 @@
             android:layout_height="wrap_content"
             android:paddingBottom="8dp"
             android:text="@string/banner_ad_label"/>
-        <TextView
-            android:id="@+id/click_ad_header"
+
+        <EditText
+            android:id="@+id/payment_input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/banner_ad_click_prompt"/>
+            android:ems="10"
+            android:hint="Payment card"
+            android:inputType="text"
+            android:text="4111 1111 1111 1111" />
+
+        <Button
+            android:id="@+id/pay_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Pay" />
     </LinearLayout>
 </LinearLayout>

@@ -12,7 +12,6 @@
      limitations under the License.
 -->
 <resources>
-    <string name="banner_ad_label">Rendered from the SDK Runtime for %1$s</string>
-    <string name="banner_ad_click_prompt">Click this banner to launch activity from SDK Runtime.</string>
+    <string name="banner_ad_label">Submit payment to %1$s for $%2$s</string>
     <string name="full_screen_ad_label">Rendered from an Activity launched and controlled by the SDK Runtime</string>
 </resources>

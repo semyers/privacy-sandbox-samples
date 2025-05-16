@@ -34,6 +34,7 @@ class BannerAd(context: Context, attrs: AttributeSet) : LinearLayout(context, at
     suspend fun loadAd(
         baseActivity: AppCompatActivity,
         clientMessage: String,
+        amount: Double,
         allowSdkActivityLaunch: () -> Boolean,
         shouldLoadWebView: Boolean,
         onPaymentComplete: () -> Unit
@@ -41,6 +42,7 @@ class BannerAd(context: Context, attrs: AttributeSet) : LinearLayout(context, at
         val bannerAd = getBannerAdFromRuntimeEnabledSdkIfExists(
             baseActivity,
             clientMessage,
+            amount,
             allowSdkActivityLaunch,
             shouldLoadWebView,
             onPaymentComplete
@@ -60,6 +62,7 @@ class BannerAd(context: Context, attrs: AttributeSet) : LinearLayout(context, at
     private suspend fun getBannerAdFromRuntimeEnabledSdkIfExists(
         baseActivity: AppCompatActivity,
         message: String,
+        amount: Double,
         allowSdkActivityLaunch: () -> Boolean,
         shouldLoadWebView: Boolean,
         onPaymentComplete: () -> Unit
@@ -69,7 +72,7 @@ class BannerAd(context: Context, attrs: AttributeSet) : LinearLayout(context, at
         }
 
         val launcher = baseActivity.createManagedSdkActivityLauncher(allowSdkActivityLaunch)
-        val request = SdkBannerRequest(message, launcher, shouldLoadWebView)
+        val request = SdkBannerRequest(message, amount, launcher, shouldLoadWebView)
         return checkNotNull(
                 ExistingSdk.loadSdkIfNeeded(
                     context

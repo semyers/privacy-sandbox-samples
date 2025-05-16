@@ -103,7 +103,8 @@ class MainActivity : AppCompatActivity() {
         val loadWebView = adTypes[adTypeSpinner.selectedItemPosition].contains("WebView")
         bannerAd.loadAd(
             this@MainActivity,
-            PACKAGE_NAME,
+            APP_DISPLAY_NAME,
+            12.34,
             shouldStartActivityPredicate(),
             loadWebView,
             onPaymentComplete()
@@ -116,7 +117,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onPaymentComplete() : () -> Unit {
-        return { makeToast("Payment complete!") }
+        return {
+            findViewById<CheckBox>(R.id.sdk_activity_launch_checkbox).toggle()
+            makeToast("Payment complete!")
+        }
     }
 
     private fun shouldStartActivityPredicate() : () -> Boolean {
@@ -150,5 +154,6 @@ class MainActivity : AppCompatActivity() {
          * (Note that in this particular sample it's used to build the banner view label).
          */
         private const val PACKAGE_NAME = "com.example.privacysandbox.client"
+        private const val APP_DISPLAY_NAME = "Food Flinger"
     }
 }

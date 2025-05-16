@@ -20,6 +20,7 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
 import android.webkit.WebView
+import android.widget.Button
 import android.widget.TextView
 import androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
@@ -121,14 +122,16 @@ private class SdkUiSession(
         return View.inflate(sdkContext, R.layout.banner, null).apply {
             val textView = findViewById<TextView>(R.id.banner_header_view)
             textView.text =
-                context.getString(R.string.banner_ad_label, request.appPackageName)
+                context.getString(R.string.banner_ad_label, request.appPackageName, request.amount)
 
-            setOnClickListener {
+            findViewById<Button>(R.id.pay_button).setOnClickListener {
                 scope.launch {
                     callback.onPaymentComplete()
                 }
-                //launchActivity()
             }
+//            setOnClickListener {
+//                launchActivity()
+//            }
         }
     }
 
