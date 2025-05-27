@@ -23,40 +23,14 @@ import androidx.privacysandbox.ui.core.SandboxedSdkViewUiInfo
 import androidx.privacysandbox.ui.core.SessionObserver
 import androidx.privacysandbox.ui.core.SessionObserverContext
 import androidx.privacysandbox.ui.core.SessionObserverFactory
-import com.runtimeenabled.api.FullscreenAd
 import com.runtimeenabled.api.PaymentCallbackInterface
 import com.runtimeenabled.api.SdkBannerRequest
 import com.runtimeenabled.api.SdkSandboxedUiAdapter
 import com.runtimeenabled.api.SdkService
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.io.File
-import java.nio.file.Files
-import java.nio.file.Paths
 
 class SdkServiceImpl(private val context: Context) : SdkService {
 
-    private val tag = "RuntimeEnabledSdk"
-
     override suspend fun initialise() {
-    }
-
-    override suspend fun getMessage(): String = "Hello from Runtime-enabled SDK!"
-
-    override suspend fun createFile(sizeInMb: Int): String {
-        val path = Paths.get(
-            context.applicationContext.dataDir.path, "file.txt"
-        )
-        withContext(Dispatchers.IO) {
-            Files.deleteIfExists(path)
-            Files.createFile(path)
-            val buffer = ByteArray(sizeInMb * 1024 * 1024)
-            Files.write(path, buffer)
-        }
-
-        val file = File(path.toString())
-        val actualFileSize: Long = file.length() / (1024 * 1024)
-        return "Created $actualFileSize MB file successfully"
     }
 
     @OptIn(ExperimentalFeatures.DelegatingAdapterApi::class)
@@ -67,10 +41,6 @@ class SdkServiceImpl(private val context: Context) : SdkService {
         val bannerAdAdapter = SdkSandboxedUiAdapterImpl(context, request, callback)
         bannerAdAdapter.addObserverFactory(SessionObserverFactoryImpl())
         return bannerAdAdapter
-    }
-
-    override suspend fun getFullscreenAd(): FullscreenAd {
-        return FullscreenAdImpl(context)
     }
 }
 

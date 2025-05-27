@@ -15,7 +15,6 @@
  */
 package com.runtimeenabled.api
 
-import androidx.privacysandbox.activity.core.SdkActivityLauncher
 import androidx.privacysandbox.tools.PrivacySandboxValue
 
 @PrivacySandboxValue
@@ -23,13 +22,5 @@ data class SdkBannerRequest(
     /** The package name of the app. */
     val appPackageName: String,
     /** The price to charge the user */
-    val amount: Double,
-    /**
-     *  An [SdkActivityLauncher] that will be used to launch an activity when the banner is clicked.
-     */
-    val activityLauncher: SdkActivityLauncher,
-    /**
-     * Denotes if a WebView banner ad needs to be loaded.
-     */
-    val isWebViewBannerAd: Boolean
+    val amount: Double
 )

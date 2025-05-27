@@ -13,10 +13,9 @@
 -->
 <resources>
   <string name="app_name">SDK Runtime Sample - Food Flinger</string>
-  <string name="create_file_size_label">File size: </string>
-  <string name="create_file_button_label">Create file in SDK Runtime</string>
-  <string name="initialize_sdk_button_label">Initialize SDK</string>
-  <string name="request_banner_view_button_label">Continue to Payment</string>
-  <string name="show_fullscreen_view_Button">Show fullscreen view</string>
-  <string name="sdk_activity_launch_checkbox_label">Allow activities from SDK</string>
+  <string name="pizzas_label">$9.99 - Pizzas: </string>
+  <string name="salads_label">$7.50 - Salads: </string>
+  <string name="cookies_label">$2.75 - Cookies: </string>
+  <string name="total_text">Total: $%1$s</string>
+  <string name="payment_button_label">Continue to Payment</string>
 </resources>

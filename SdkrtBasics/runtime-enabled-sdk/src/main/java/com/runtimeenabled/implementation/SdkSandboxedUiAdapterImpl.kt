@@ -19,11 +19,8 @@ import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.View
-import android.webkit.WebView
 import android.widget.Button
 import android.widget.TextView
-import androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder
-import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 import androidx.privacysandbox.ui.core.SessionData
@@ -38,16 +35,15 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import java.util.concurrent.Executor
-import kotlin.random.Random
 
 /**
- * Implementation of [SdkSandboxedUiAdapter] that handles banner ad requests.
+ * Implementation of [SdkSandboxedUiAdapter] that handles payment requests.
  *
  * This class extends [AbstractSandboxedUiAdapter] and provides the functionality to open
  * UI sessions. The usage of [AbstractSandboxedUiAdapter] simplifies the implementation.
  *
  * @param sdkContext The context of the SDK.
- * @param request The banner ad request.
+ * @param request The payment request.
  */
 class SdkSandboxedUiAdapterImpl(
     private val sdkContext: Context,
@@ -104,21 +100,9 @@ private class SdkUiSession(
     /** A scope for launching coroutines in the client executor. */
     private val scope = CoroutineScope(clientExecutor.asCoroutineDispatcher() + Job())
 
-    private val urls = listOf(
-        "https://github.com", "https://developer.android.com/"
-    )
-
     override val view: View = getAdView()
 
     private fun getAdView() : View {
-        if (request.isWebViewBannerAd) {
-            val webview = WebView(sdkContext)
-            webview.getSettings().setJavaScriptEnabled(true);
-            val unencodedHtml =
-                "<html><body><button onclick='this.innerText=\"Account Linked\"'>Link Account</button></body></html>"
-            webview.loadData(unencodedHtml, "text/html", "utf-8")
-            return webview
-        }
         return View.inflate(sdkContext, R.layout.banner, null).apply {
             val textView = findViewById<TextView>(R.id.banner_header_view)
             textView.text =
@@ -129,9 +113,6 @@ private class SdkUiSession(
                     callback.onPaymentComplete()
                 }
             }
-//            setOnClickListener {
-//                launchActivity()
-//            }
         }
     }
 
@@ -155,21 +136,5 @@ private class SdkUiSession(
 
     override fun notifyZOrderChanged(isZOrderOnTop: Boolean) {
         // Notifies that the Z order has changed for the UI associated by this session.
-    }
-
-    private fun launchActivity() = scope.launch {
-        val handler = object : SdkSandboxActivityHandlerCompat {
-            override fun onActivityCreated(activityHolder: ActivityHolder) {
-                val contentView = View.inflate(sdkContext, R.layout.full_screen, null)
-                contentView.findViewById<WebView>(R.id.full_screen_ad_webview).apply {
-                    loadUrl(urls[Random.nextInt(urls.size)])
-                }
-                activityHolder.getActivity().setContentView(contentView)
-            }
-        }
-
-        val token = controller.registerSdkSandboxActivityHandler(handler)
-        val launched = request.activityLauncher.launchSdkActivity(token)
-        if (!launched) controller.unregisterSdkSandboxActivityHandler(handler)
     }
 }

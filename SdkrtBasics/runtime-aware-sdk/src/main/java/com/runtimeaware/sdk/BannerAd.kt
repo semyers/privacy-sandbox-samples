@@ -72,7 +72,7 @@ class BannerAd(context: Context, attrs: AttributeSet) : LinearLayout(context, at
         }
 
         val launcher = baseActivity.createManagedSdkActivityLauncher(allowSdkActivityLaunch)
-        val request = SdkBannerRequest(message, amount, launcher, shouldLoadWebView)
+        val request = SdkBannerRequest(message, amount)
         return checkNotNull(
                 ExistingSdk.loadSdkIfNeeded(
                     context

@@ -36,11 +36,6 @@ class ExistingSdk(private val context: Context) {
         return isRuntimeEnabledSdkLoaded
     }
 
-    suspend fun createFile(size: Int): String? {
-        if (!isSdkLoaded()) return null
-        return loadSdkIfNeeded(context)?.createFile(size)
-    }
-
     /** Keeps a reference to a sandboxed SDK and makes sure it's only loaded once. */
     internal companion object Loader {
 

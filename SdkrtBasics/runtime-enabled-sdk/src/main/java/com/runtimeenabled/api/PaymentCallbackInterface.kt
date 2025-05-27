@@ -18,17 +18,15 @@ package com.runtimeenabled.api
 import androidx.privacysandbox.tools.PrivacySandboxCallback
 
 /**
- * Common interface to be implemented by Adapters.
+ * Interface to be implemented by runtime-aware SDK.
  *
- * Runtime-enabled Adapters will register an object that implements this interface with the
- * Mediator.
- * In-App Adapters will implement this interface and be initialised and registered with Mediator
- * from the App.
+ * Runtime-aware SDK will create an object that implements this interface and pass it to the
+ * runtime-enabled SDK.
  *
- * This interface will then be used by the Mediator to communicate with the Mediatees to show ads.
+ * This interface will then be used by the runtime-enabled SDK to communicate with the client app.
  */
 @PrivacySandboxCallback
 interface PaymentCallbackInterface {
-
+    /** Function that is called on successful payment. */
     suspend fun onPaymentComplete()
 }

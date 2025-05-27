@@ -16,17 +16,18 @@
 package com.example.client
 
 import android.os.Bundle
+import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Button
-import android.widget.CheckBox
 import android.widget.Spinner
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.privacysandbox.client.R
 import com.runtimeaware.sdk.BannerAd
 import com.runtimeaware.sdk.ExistingSdk
-import com.runtimeaware.sdk.FullscreenAd
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -35,24 +36,28 @@ class MainActivity : AppCompatActivity() {
 
     private val runtimeAwareSdk = ExistingSdk(this)
 
-    /** A spinner for selecting the size of the file created in the sandbox. */
-    private lateinit var fileSizeSpinner: Spinner
+//    /** A spinner for selecting the size of the file created in the sandbox. */
+//    private lateinit var fileSizeSpinner: Spinner
+//
+//    /** Represents a file size that can be selected in the UI. */
+//    private data class FileSize(val sizeInMb: Int) {
+//        /** Called when FileSize is shown in the spinner. */
+//        override fun toString() = "$sizeInMb MB"
+//    }
+//
 
-    /** Represents a file size that can be selected in the UI. */
-    private data class FileSize(val sizeInMb: Int) {
-        /** Called when FileSize is shown in the spinner. */
-        override fun toString() = "$sizeInMb MB"
-    }
-
-    private val fileSizes = listOf(
-        FileSize(3),
-        FileSize(9),
-        FileSize(18),
+    /** Spinners for selecting food. */
+    private lateinit var pizzaSpinner: Spinner
+    private lateinit var saladSpinner: Spinner
+    private lateinit var cookieSpinner: Spinner
+    private val orderCount = listOf(
+        "0",
+        "1",
+        "2",
+        "3",
     )
 
-    /** A spinner for selecting the type of ad being requested. */
-    private lateinit var adTypeSpinner: Spinner
-    private val adTypes = listOf("Banner", "WebView Banner")
+    private var total = 0.0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,84 +65,88 @@ class MainActivity : AppCompatActivity() {
 
         bannerAd = findViewById(R.id.banner_ad)
 
-        findViewById<Button>(R.id.initialize_sdk_button).setOnClickListener {
-            onInitializeSkButtonPressed()
-        }
-        findViewById<Button>(R.id.create_file_button).setOnClickListener {
-            onCreateFileButtonPressed()
-        }
         findViewById<Button>(R.id.request_banner_button).setOnClickListener {
             onRequestBannerButtonPressed()
         }
-        findViewById<Button>(R.id.fullscreen_button).setOnClickListener {
-            showFullscreenView()
-        }
 
-        fileSizeSpinner = findViewById<Spinner>(R.id.create_file_size_spinner).apply {
-            adapter = ArrayAdapter(this@MainActivity,
-                android.R.layout.simple_spinner_dropdown_item,
-                fileSizes,
-            )
-        }
-
-        adTypeSpinner = findViewById<Spinner>(R.id.request_ad_spinner).apply {
+        pizzaSpinner = findViewById<Spinner>(R.id.pizzas_spinner).apply {
             adapter = ArrayAdapter(
-                this@MainActivity, android.R.layout.simple_spinner_dropdown_item, adTypes)
+                this@MainActivity, android.R.layout.simple_spinner_dropdown_item, orderCount)
+        }
+        pizzaSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                updateTotal()
+            }
+
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+
+            }
+        }
+        saladSpinner = findViewById<Spinner>(R.id.salads_spinner).apply {
+            adapter = ArrayAdapter(
+                this@MainActivity, android.R.layout.simple_spinner_dropdown_item, orderCount)
+        }
+        saladSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                updateTotal()
+            }
+
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+
+            }
+        }
+        cookieSpinner = findViewById<Spinner>(R.id.cookies_spinner).apply {
+            adapter = ArrayAdapter(
+                this@MainActivity, android.R.layout.simple_spinner_dropdown_item, orderCount)
+        }
+        cookieSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                updateTotal()
+            }
+
+            override fun onNothingSelected(p0: AdapterView<*>?) {
+
+            }
         }
 
-    }
-
-    private fun onInitializeSkButtonPressed() = lifecycleScope.launch {
-        if (!runtimeAwareSdk.initialize()) {
-            makeToast("Failed to initialize SDK")
-        } else {
-            makeToast("Initialized SDK!")
+        lifecycleScope.launch {
+            if (!runtimeAwareSdk.initialize()) {
+                makeToast("Failed to initialize SDK")
+            } else {
+                makeToast("Initialized SDK!")
+            }
         }
     }
 
     private fun onRequestBannerButtonPressed() = lifecycleScope.launch {
-        // Apps can allow or deny activity launches as they happen. In this example we are
-        // surfacing a checkbox that controls the launches. In production apps could disable
-        // launches whenever they feel SDKs shouldn't be launching activities (in the middle of
-        // certain game scenes, video playback, etc).
-        val loadWebView = adTypes[adTypeSpinner.selectedItemPosition].contains("WebView")
         bannerAd.loadAd(
             this@MainActivity,
             APP_DISPLAY_NAME,
-            12.34,
+            total,
             shouldStartActivityPredicate(),
-            loadWebView,
+            false,
             onPaymentComplete()
         )
     }
 
-    private fun showFullscreenView() = lifecycleScope.launch {
-        val fullscreenAd = FullscreenAd.create(this@MainActivity)
-        fullscreenAd.show(this@MainActivity, shouldStartActivityPredicate())
+    private fun updateTotal() {
+        total = 9.99 * pizzaSpinner.selectedItemPosition + 7.5 * saladSpinner.selectedItemPosition + 2.75 * cookieSpinner.selectedItemPosition
+        val textView = findViewById<TextView>(R.id.totalText)
+        textView.text =
+            textView.context.getString(R.string.total_text, "$total")
     }
 
     private fun onPaymentComplete() : () -> Unit {
         return {
-            findViewById<CheckBox>(R.id.sdk_activity_launch_checkbox).toggle()
+            val textView = findViewById<TextView>(R.id.totalText)
+            textView.text =
+                textView.context.getString(R.string.total_text, "$total - Paid!")
             makeToast("Payment complete!")
         }
     }
 
     private fun shouldStartActivityPredicate() : () -> Boolean {
-        return { findViewById<CheckBox>(R.id.sdk_activity_launch_checkbox).isChecked }
-    }
-
-    private fun onCreateFileButtonPressed() {
-        val fileSize = fileSizes[fileSizeSpinner.selectedItemPosition]
-
-        lifecycleScope.launch {
-            val success = runtimeAwareSdk.createFile(fileSize.sizeInMb)
-            if (success == null) {
-                makeToast("Please load the SDK first!")
-                return@launch
-            }
-            makeToast(success)
-        }
+        return { true }
     }
 
     private fun makeToast(message: String) {

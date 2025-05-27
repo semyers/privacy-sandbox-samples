@@ -22,11 +22,5 @@ interface SdkService {
 
     suspend fun initialise()
 
-    suspend fun getMessage(): String
-
-    suspend fun createFile(sizeInMb: Int): String
-
     suspend fun getBanner(request: SdkBannerRequest, callback: PaymentCallbackInterface): SdkSandboxedUiAdapter
-
-    suspend fun getFullscreenAd(): FullscreenAd
 }

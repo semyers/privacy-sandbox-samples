@@ -13,5 +13,4 @@
 -->
 <resources>
     <string name="banner_ad_label">Submit payment to %1$s for $%2$s</string>
-    <string name="full_screen_ad_label">Rendered from an Activity launched and controlled by the SDK Runtime</string>
 </resources>
