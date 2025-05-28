@@ -51,6 +51,7 @@ class BannerAd(context: Context, attrs: AttributeSet) : LinearLayout(context, at
             val sandboxedSdkView = SandboxedSdkView(context)
             addViewToLayout(sandboxedSdkView)
             sandboxedSdkView.setAdapter(bannerAd)
+            sandboxedSdkView.orderProviderUiAboveClientUi(true)
             return
         }
 
