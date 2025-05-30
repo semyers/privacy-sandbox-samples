@@ -40,8 +40,7 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="Payment card"
-            android:inputType="text"
-            android:text="4111 1111 1111 1111" />
+            android:inputType="text" />
 
         <Button
             android:id="@+id/pay_button"

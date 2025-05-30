@@ -19,10 +19,8 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.privacysandbox.activity.client.createManagedSdkActivityLauncher
-import androidx.privacysandbox.ui.client.view.SandboxedSdkView
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 import com.runtimeenabled.api.SdkBannerRequest
 
@@ -38,7 +36,7 @@ class BannerAd(context: Context, attrs: AttributeSet) : LinearLayout(context, at
         allowSdkActivityLaunch: () -> Boolean,
         shouldLoadWebView: Boolean,
         onPaymentComplete: () -> Unit
-    ) {
+    ): SandboxedUiAdapter? {
         val bannerAd = getBannerAdFromRuntimeEnabledSdkIfExists(
             baseActivity,
             clientMessage,
@@ -47,17 +45,18 @@ class BannerAd(context: Context, attrs: AttributeSet) : LinearLayout(context, at
             shouldLoadWebView,
             onPaymentComplete
         )
-        if (bannerAd != null) {
-            val sandboxedSdkView = SandboxedSdkView(context)
-            addViewToLayout(sandboxedSdkView)
-            sandboxedSdkView.setAdapter(bannerAd)
-            sandboxedSdkView.orderProviderUiAboveClientUi(true)
-            return
-        }
-
-        val textView = TextView(context)
-        textView.text = "Ad from SDK in the app"
-        addViewToLayout(textView)
+//        if (bannerAd != null) {
+//            val sandboxedSdkView = SandboxedSdkView(context)
+//            addViewToLayout(sandboxedSdkView)
+//            sandboxedSdkView.setAdapter(bannerAd)
+//            sandboxedSdkView.orderProviderUiAboveClientUi(true)
+//            return
+//        }
+//
+//        val textView = TextView(context)
+//        textView.text = "Ad from SDK in the app"
+//        addViewToLayout(textView)
+        return bannerAd
     }
 
     private suspend fun getBannerAdFromRuntimeEnabledSdkIfExists(

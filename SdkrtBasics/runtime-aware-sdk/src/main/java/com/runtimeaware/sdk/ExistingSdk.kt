@@ -20,6 +20,8 @@ import android.os.Bundle
 import android.util.Log
 import androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
+import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+import com.runtimeenabled.api.SdkBannerRequest
 import com.runtimeenabled.api.SdkService
 import com.runtimeenabled.api.SdkServiceFactory
 
@@ -34,6 +36,20 @@ class ExistingSdk(private val context: Context) {
         // runtime, initialize as you usually would.
         val isRuntimeEnabledSdkLoaded = loadSdkIfNeeded(context) != null
         return isRuntimeEnabledSdkLoaded
+    }
+
+    suspend fun getSandboxedUiAdapter(
+        message: String,
+        amount: Double,
+        onPaymentComplete: () -> Unit,
+        context: Context
+    ): SandboxedUiAdapter {
+        val request = SdkBannerRequest(message, amount)
+        return checkNotNull(
+            loadSdkIfNeeded(
+                context
+            )?.getBanner(request, PaymentCallback(onPaymentComplete))
+        ) { "No banner Ad received from ad SDK!" }
     }
 
     /** Keeps a reference to a sandboxed SDK and makes sure it's only loaded once. */
