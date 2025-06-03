@@ -16,17 +16,11 @@
 package com.example.client
 
 import android.os.Bundle
-import android.widget.Spinner
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,25 +34,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -75,8 +63,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -85,14 +71,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.privacysandbox.ui.client.view.SandboxedSdkUi
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 import com.example.client.ui.theme.ComposeTutorialTheme
-import com.example.privacysandbox.client.R
-import com.runtimeaware.sdk.BannerAd
 import com.runtimeaware.sdk.ExistingSdk
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     /** Container for rendering content from the SDK. */
-    private lateinit var bannerAd: BannerAd
+//    private lateinit var bannerAd: BannerAd
     private lateinit var paymentSdkAdapter: SandboxedUiAdapter
 
     private val runtimeAwareSdk = ExistingSdk(this)
@@ -108,15 +92,15 @@ class MainActivity : AppCompatActivity() {
 //
 
     /** Spinners for selecting food. */
-    private lateinit var pizzaSpinner: Spinner
-    private lateinit var saladSpinner: Spinner
-    private lateinit var cookieSpinner: Spinner
-    private val orderCount = listOf(
-        "0",
-        "1",
-        "2",
-        "3",
-    )
+//    private lateinit var pizzaSpinner: Spinner
+//    private lateinit var saladSpinner: Spinner
+//    private lateinit var cookieSpinner: Spinner
+//    private val orderCount = listOf(
+//        "0",
+//        "1",
+//        "2",
+//        "3",
+//    )
 
     private var total = 0.0
 
@@ -183,7 +167,7 @@ class MainActivity : AppCompatActivity() {
             paymentSdkAdapter = runtimeAwareSdk.getSandboxedUiAdapter(
                 APP_DISPLAY_NAME,
                 total,
-                onPaymentComplete(),
+                {},
                 this@MainActivity
             )
         }
@@ -299,30 +283,26 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (showPinDialog) {
-            SandboxedSdkUi(
-                sandboxedUiAdapter = paymentSdkAdapter,
-                providerUiOnTop = true
+            PinEntryDialog(
+                totalAmount = totalAmount,
+                onDismiss = { showPinDialog = false },
+                onConfirm = {
+                    showPinDialog = false
+                    // In a real app, you would validate the PIN and process the payment
+                    Toast.makeText(
+                        context,
+                        "Payment processing for $${
+                            String.format(
+                                "%.2f",
+                                totalAmount
+                            )
+                        }",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    // Reset order after "payment"
+                    orderItems = emptyMap()
+                }
             )
-//            PinEntryDialog(
-//                totalAmount = totalAmount,
-//                onDismiss = { showPinDialog = false },
-//                onConfirm = { pin ->
-//                    showPinDialog = false
-//                    // In a real app, you would validate the PIN and process the payment
-//                    Toast.makeText(
-//                        context,
-//                        "Payment processing with PIN: $pin for $${
-//                            String.format(
-//                                "%.2f",
-//                                totalAmount
-//                            )
-//                        }",
-//                        Toast.LENGTH_LONG
-//                    ).show()
-//                    // Reset order after "payment"
-//                    orderItems = emptyMap()
-//                }
-//            )
         }
     }
 
@@ -347,57 +327,62 @@ class MainActivity : AppCompatActivity() {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text(
-                        text = "Enter PIN to Pay",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold
+                    SandboxedSdkUi(
+                        sandboxedUiAdapter = paymentSdkAdapter,
+                        providerUiOnTop = true,
+                        modifier = Modifier.height(175.dp)
                     )
-                    Text(
-                        text = "Amount: $${String.format("%.2f", totalAmount)}",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-
-                    OutlinedTextField(
-                        value = pin,
-                        onValueChange = {
-                            if (it.length <= maxPinLength && it.all { char -> char.isDigit() }) {
-                                pin = it
-                            }
-                        },
-                        label = { Text("PIN") },
-                        singleLine = true,
-                        visualTransformation = PasswordVisualTransformation(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-                        modifier = Modifier.fillMaxWidth(),
-                        textStyle = LocalTextStyle.current.copy(
-                            textAlign = TextAlign.Center,
-                            fontSize = 20.sp
-                        ),
-                        shape = RoundedCornerShape(8.dp)
-                    )
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceAround
-                    ) {
-                        Button(
-                            onClick = onDismiss,
-                            colors = ButtonDefaults.outlinedButtonColors(),
-                            border = ButtonDefaults.outlinedButtonBorder
-                        ) {
-                            Text("Cancel")
-                        }
-                        Button(
-                            onClick = {
-                                if (pin.length == maxPinLength) { // Or any other validation
-                                    onConfirm(pin)
-                                }
-                            },
-                            enabled = pin.length == maxPinLength // Enable only when PIN has sufficient length
-                        ) {
-                            Text("Confirm Payment")
-                        }
-                    }
+//                    Text(
+//                        text = "Enter PIN to Pay",
+//                        style = MaterialTheme.typography.headlineSmall,
+//                        fontWeight = FontWeight.Bold
+//                    )
+//                    Text(
+//                        text = "Amount: $${String.format("%.2f", totalAmount)}",
+//                        style = MaterialTheme.typography.titleMedium
+//                    )
+//
+//                    OutlinedTextField(
+//                        value = pin,
+//                        onValueChange = {
+//                            if (it.length <= maxPinLength && it.all { char -> char.isDigit() }) {
+//                                pin = it
+//                            }
+//                        },
+//                        label = { Text("PIN") },
+//                        singleLine = true,
+//                        visualTransformation = PasswordVisualTransformation(),
+//                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+//                        modifier = Modifier.fillMaxWidth(),
+//                        textStyle = LocalTextStyle.current.copy(
+//                            textAlign = TextAlign.Center,
+//                            fontSize = 20.sp
+//                        ),
+//                        shape = RoundedCornerShape(8.dp)
+//                    )
+//
+//                    Row(
+//                        modifier = Modifier.fillMaxWidth(),
+//                        horizontalArrangement = Arrangement.SpaceAround
+//                    ) {
+//                        Button(
+//                            onClick = onDismiss,
+//                            colors = ButtonDefaults.outlinedButtonColors(),
+//                            border = ButtonDefaults.outlinedButtonBorder
+//                        ) {
+//                            Text("Cancel")
+//                        }
+//                        Button(
+//                            onClick = {
+//                                if (pin.length == maxPinLength) { // Or any other validation
+//                                    onConfirm(pin)
+//                                }
+//                            },
+//                            enabled = pin.length == maxPinLength // Enable only when PIN has sufficient length
+//                        ) {
+//                            Text("Confirm Payment")
+//                        }
+//                    }
                 }
             }
         }
@@ -573,107 +558,107 @@ class MainActivity : AppCompatActivity() {
 //        }
 //    }
 
-    data class Message(val author: String, val body: String)
+//    data class Message(val author: String, val body: String)
+//
+//    @Composable
+//    fun MessageCard(msg: Message) {
+//        // Add padding around our message
+//        Row(modifier = Modifier.padding(all = 8.dp)) {
+//            Image(
+//                painter = painterResource(R.drawable.cookie),
+//                contentDescription = "Contact profile picture",
+//                modifier = Modifier
+//                    // Set image size to 40 dp
+//                    .size(40.dp)
+//                    // Clip image to be shaped as a circle
+//                    .clip(CircleShape)
+//                    .border(1.5.dp, MaterialTheme.colorScheme.primary, CircleShape)
+//            )
+//
+//            // Add a horizontal space between the image and the column
+//            Spacer(modifier = Modifier.width(8.dp))
+//
+//            // We keep track if the message is expanded or not in this
+//            // variable
+//            var isExpanded by remember { mutableStateOf(false) }
+//            // surfaceColor will be updated gradually from one color to the other
+//            val surfaceColor by animateColorAsState(
+//                if (isExpanded) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+//            )
+//
+//            // We toggle the isExpanded variable when we click on this Column
+//            Column(modifier = Modifier.clickable { isExpanded = !isExpanded }) {
+//                Text(
+//                    text = msg.author,
+//                    color = MaterialTheme.colorScheme.secondary,
+//                    style = MaterialTheme.typography.titleSmall
+//                )
+//                // Add a vertical space between the author and message texts
+//                Spacer(modifier = Modifier.height(4.dp))
+//
+//                Surface(
+//                    shape = MaterialTheme.shapes.medium,
+//                    shadowElevation = 1.dp,
+//                    // surfaceColor color will be changing gradually from primary to surface
+//                    color = surfaceColor,
+//                    // animateContentSize will change the Surface size gradually
+//                    modifier = Modifier
+//                        .animateContentSize()
+//                        .padding(1.dp)
+//                ) {
+//                    Text(
+//                        text = msg.body,
+//                        modifier = Modifier.padding(all = 4.dp),
+//                        // If the message is expanded, we display all its content
+//                        // otherwise we only display the first line
+//                        maxLines = if (isExpanded) Int.MAX_VALUE else 1,
+//                        style = MaterialTheme.typography.bodyMedium,
+//                    )
+//                }
+//            }
+//        }
+//    }
 
-    @Composable
-    fun MessageCard(msg: Message) {
-        // Add padding around our message
-        Row(modifier = Modifier.padding(all = 8.dp)) {
-            Image(
-                painter = painterResource(R.drawable.cookie),
-                contentDescription = "Contact profile picture",
-                modifier = Modifier
-                    // Set image size to 40 dp
-                    .size(40.dp)
-                    // Clip image to be shaped as a circle
-                    .clip(CircleShape)
-                    .border(1.5.dp, MaterialTheme.colorScheme.primary, CircleShape)
-            )
+//    @Composable
+//    fun Conversation(messages: List<Message>) {
+//        LazyColumn {
+//            items(messages) { message ->
+//                MessageCard(message)
+//            }
+//        }
+//    }
 
-            // Add a horizontal space between the image and the column
-            Spacer(modifier = Modifier.width(8.dp))
+//    private fun onRequestBannerButtonPressed() = lifecycleScope.launch {
+//        bannerAd.loadAd(
+//            this@MainActivity,
+//            APP_DISPLAY_NAME,
+//            total,
+//            shouldStartActivityPredicate(),
+//            false,
+//            onPaymentComplete()
+//        )
+//    }
 
-            // We keep track if the message is expanded or not in this
-            // variable
-            var isExpanded by remember { mutableStateOf(false) }
-            // surfaceColor will be updated gradually from one color to the other
-            val surfaceColor by animateColorAsState(
-                if (isExpanded) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
-            )
-
-            // We toggle the isExpanded variable when we click on this Column
-            Column(modifier = Modifier.clickable { isExpanded = !isExpanded }) {
-                Text(
-                    text = msg.author,
-                    color = MaterialTheme.colorScheme.secondary,
-                    style = MaterialTheme.typography.titleSmall
-                )
-                // Add a vertical space between the author and message texts
-                Spacer(modifier = Modifier.height(4.dp))
-
-                Surface(
-                    shape = MaterialTheme.shapes.medium,
-                    shadowElevation = 1.dp,
-                    // surfaceColor color will be changing gradually from primary to surface
-                    color = surfaceColor,
-                    // animateContentSize will change the Surface size gradually
-                    modifier = Modifier
-                        .animateContentSize()
-                        .padding(1.dp)
-                ) {
-                    Text(
-                        text = msg.body,
-                        modifier = Modifier.padding(all = 4.dp),
-                        // If the message is expanded, we display all its content
-                        // otherwise we only display the first line
-                        maxLines = if (isExpanded) Int.MAX_VALUE else 1,
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                }
-            }
-        }
-    }
-
-    @Composable
-    fun Conversation(messages: List<Message>) {
-        LazyColumn {
-            items(messages) { message ->
-                MessageCard(message)
-            }
-        }
-    }
-
-    private fun onRequestBannerButtonPressed() = lifecycleScope.launch {
-        bannerAd.loadAd(
-            this@MainActivity,
-            APP_DISPLAY_NAME,
-            total,
-            shouldStartActivityPredicate(),
-            false,
-            onPaymentComplete()
-        )
-    }
-
-    private fun updateTotal() {
-        total =
-            9.99 * pizzaSpinner.selectedItemPosition + 7.5 * saladSpinner.selectedItemPosition + 2.75 * cookieSpinner.selectedItemPosition
-        val textView = findViewById<TextView>(R.id.totalText)
-        textView.text =
-            textView.context.getString(R.string.total_text, "$total")
-    }
-
-    private fun onPaymentComplete(): () -> Unit {
-        return {
-            val textView = findViewById<TextView>(R.id.totalText)
-            textView.text =
-                textView.context.getString(R.string.total_text, "$total - Paid!")
-            makeToast("Payment complete!")
-        }
-    }
-
-    private fun shouldStartActivityPredicate(): () -> Boolean {
-        return { true }
-    }
+//    private fun updateTotal() {
+//        total =
+//            9.99 * pizzaSpinner.selectedItemPosition + 7.5 * saladSpinner.selectedItemPosition + 2.75 * cookieSpinner.selectedItemPosition
+//        val textView = findViewById<TextView>(R.id.totalText)
+//        textView.text =
+//            textView.context.getString(R.string.total_text, "$total")
+//    }
+//
+//    private fun onPaymentComplete(): () -> Unit {
+//        return {
+//            val textView = findViewById<TextView>(R.id.totalText)
+//            textView.text =
+//                textView.context.getString(R.string.total_text, "$total - Paid!")
+//            makeToast("Payment complete!")
+//        }
+//    }
+//
+//    private fun shouldStartActivityPredicate(): () -> Boolean {
+//        return { true }
+//    }
 
     private fun makeToast(message: String) {
         runOnUiThread { Toast.makeText(this@MainActivity, message, Toast.LENGTH_SHORT).show() }

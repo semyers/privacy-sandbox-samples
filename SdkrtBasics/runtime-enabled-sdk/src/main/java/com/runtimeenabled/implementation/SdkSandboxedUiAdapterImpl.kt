@@ -103,7 +103,7 @@ private class SdkUiSession(
     override val view: View = getAdView()
 
     private fun getAdView() : View {
-        return View.inflate(sdkContext, R.layout.banner, null).apply {
+        var view = View.inflate(sdkContext, R.layout.banner, null).apply {
             val textView = findViewById<TextView>(R.id.banner_header_view)
             textView.text =
                 context.getString(R.string.banner_ad_label, request.appPackageName, request.amount)
@@ -114,7 +114,89 @@ private class SdkUiSession(
                 }
             }
         }
+        return view
     }
+//    @Composable
+//    fun PinEntryDialog(
+//        totalAmount: Double,
+//        onDismiss: () -> Unit,
+//        onConfirm: (String) -> Unit
+//    ) {
+//        var pin by rememberSaveable { mutableStateOf("") }
+//        val maxPinLength = 4 // Or your desired PIN length
+//
+//        Dialog(onDismissRequest = onDismiss) {
+//            Card(
+//                shape = RoundedCornerShape(16.dp),
+//                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+//            ) {
+//                Column(
+//                    modifier = Modifier
+//                        .padding(24.dp)
+//                        .fillMaxWidth(),
+//                    horizontalAlignment = Alignment.CenterHorizontally,
+//                    verticalArrangement = Arrangement.spacedBy(16.dp)
+//                ) {
+//                    SandboxedSdkUi(
+//                        sandboxedUiAdapter = paymentSdkAdapter,
+//                        providerUiOnTop = true,
+//                        modifier = Modifier.wrapContentHeight()
+//                    )
+//                    Text(
+//                        text = "Enter PIN to Pay",
+//                        style = MaterialTheme.typography.headlineSmall,
+//                        fontWeight = FontWeight.Bold
+//                    )
+//                    Text(
+//                        text = "Amount: $${String.format("%.2f", totalAmount)}",
+//                        style = MaterialTheme.typography.titleMedium
+//                    )
+//
+//                    OutlinedTextField(
+//                        value = pin,
+//                        onValueChange = {
+//                            if (it.length <= maxPinLength && it.all { char -> char.isDigit() }) {
+//                                pin = it
+//                            }
+//                        },
+//                        label = { Text("PIN") },
+//                        singleLine = true,
+//                        visualTransformation = PasswordVisualTransformation(),
+//                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+//                        modifier = Modifier.fillMaxWidth(),
+//                        textStyle = LocalTextStyle.current.copy(
+//                            textAlign = TextAlign.Center,
+//                            fontSize = 20.sp
+//                        ),
+//                        shape = RoundedCornerShape(8.dp)
+//                    )
+//
+//                    Row(
+//                        modifier = Modifier.fillMaxWidth(),
+//                        horizontalArrangement = Arrangement.SpaceAround
+//                    ) {
+//                        Button(
+//                            onClick = onDismiss,
+//                            colors = ButtonDefaults.outlinedButtonColors(),
+//                            border = ButtonDefaults.outlinedButtonBorder
+//                        ) {
+//                            Text("Cancel")
+//                        }
+//                        Button(
+//                            onClick = {
+//                                if (pin.length == maxPinLength) { // Or any other validation
+//                                    onConfirm(pin)
+//                                }
+//                            },
+//                            enabled = pin.length == maxPinLength // Enable only when PIN has sufficient length
+//                        ) {
+//                            Text("Confirm Payment")
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     override fun close() {
         // Notifies that the client has closed the session. It's a good opportunity to dispose
