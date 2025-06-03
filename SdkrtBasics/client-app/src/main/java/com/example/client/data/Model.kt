@@ -1,4 +1,4 @@
-package com.example.client
+package com.example.client.data
 
 data class MenuItem(
     val id: String,

@@ -9,7 +9,11 @@ import androidx.privacysandbox.ui.client.view.SandboxedSdkUi
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 import com.runtimeaware.sdk.ExistingSdk
 
-class PaymentProvider(private val runtimeAwareSdk: ExistingSdk, private val appDisplayName: String, private val context: Context) : PaymentProviderInterface {
+class PaymentProvider(
+    private val runtimeAwareSdk: ExistingSdk,
+    private val appDisplayName: String,
+    private val context: Context
+) : PaymentProviderInterface {
 
     private lateinit var paymentSdkAdapter: SandboxedUiAdapter
 

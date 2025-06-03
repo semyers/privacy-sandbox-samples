@@ -19,54 +19,9 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.BottomAppBar
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.lifecycleScope
+import com.example.client.data.sampleMenuItems
+import com.example.client.ui.screens.RestaurantMenuScreen
 import com.example.client.ui.theme.ComposeTutorialTheme
 import com.runtimeaware.sdk.ExistingSdk
 import kotlinx.coroutines.launch
@@ -74,54 +29,10 @@ import kotlinx.coroutines.launch
 class MainActivity : AppCompatActivity() {
     private val runtimeAwareSdk = ExistingSdk(this)
 
-    // Sample Data (In a real app, this would come from a ViewModel or repository)
-    val sampleMenuItems = listOf(
-        MenuItem(
-            "1",
-            "Margherita Pizza",
-            "Classic cheese and tomato pizza",
-            12.99,
-            drawableResId = null /* R.drawable.margherita_pizza */
-        ),
-        MenuItem(
-            "2",
-            "Pepperoni Pizza",
-            "Pizza with spicy pepperoni slices",
-            14.99,
-            drawableResId = null /* R.drawable.pepperoni_pizza */
-        ),
-        MenuItem(
-            "3",
-            "Caesar Salad",
-            "Fresh romaine lettuce with Caesar dressing",
-            8.50,
-            drawableResId = null /* R.drawable.caesar_salad */
-        ),
-        MenuItem(
-            "4",
-            "Cheeseburger",
-            "Beef patty with cheese, lettuce, and tomato",
-            10.75,
-            drawableResId = null /* R.drawable.cheeseburger */
-        ),
-        MenuItem(
-            "5",
-            "Fries",
-            "Crispy golden french fries",
-            4.00,
-            drawableResId = null /* R.drawable.fries */
-        ),
-        MenuItem(
-            "6",
-            "Cola",
-            "Refreshing cola drink",
-            2.50,
-            drawableResId = null /* R.drawable.cola */
-        )
-    )
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Initialize the Payment SDK
         lifecycleScope.launch {
             if (!runtimeAwareSdk.initialize()) {
                 makeToast("Failed to initialize SDK")
@@ -129,256 +40,19 @@ class MainActivity : AppCompatActivity() {
                 makeToast("Initialized SDK!")
             }
         }
+
+        // Use a wrapper around the SDK to pass to the UI component
         val paymentProvider = PaymentProvider(runtimeAwareSdk, APP_DISPLAY_NAME, this)
+
+        // Set up the UI
         setContent {
             ComposeTutorialTheme {
-                RestaurantMenuScreen(sampleMenuItems, paymentProvider)
-            }
-        }
-    }
-
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    fun RestaurantMenuScreen(menuItems: List<MenuItem>, paymentProvider: PaymentProvider) {
-        var orderItems by remember { mutableStateOf(mapOf<String, OrderItem>()) }
-        var showPaymentDialog by remember { mutableStateOf(false) }
-        val context = LocalContext.current
-
-        val totalAmount = orderItems.values.sumOf { it.menuItem.price * it.quantity }
-
-        Scaffold(
-            topBar = {
-                TopAppBar(
-                    title = { Text(APP_DISPLAY_NAME) },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
+                RestaurantMenuScreen(
+                    APP_DISPLAY_NAME,
+                    sampleMenuItems,
+                    paymentProvider,
+                    lifecycleScope
                 )
-            },
-            bottomBar = {
-                if (totalAmount > 0) {
-                    BottomAppBar(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 16.dp, vertical = 8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Total: $${String.format("%.2f", totalAmount)}",
-                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                color = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
-                            Button(
-                                onClick = {
-                                    lifecycleScope.launch {
-                                        paymentProvider.initialize(
-                                            totalAmount = totalAmount,
-                                            onConfirm = {
-                                                showPaymentDialog = false
-                                                // In a real app, you would validate the PIN and process the payment
-                                                Toast.makeText(
-                                                    context,
-                                                    "Payment processing for $${
-                                                        String.format(
-                                                            "%.2f",
-                                                            totalAmount
-                                                        )
-                                                    }",
-                                                    Toast.LENGTH_LONG
-                                                ).show()
-                                                // Reset order after "payment"
-                                                orderItems = emptyMap()
-                                            },
-                                        )
-                                        showPaymentDialog = true
-                                    }
-                                  },
-                                enabled = totalAmount > 0
-                            ) {
-                                Text("Pay Now")
-                            }
-                        }
-                    }
-                }
-            }
-        ) { paddingValues ->
-            LazyColumn(
-                contentPadding = paddingValues,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                item { // For a little spacing at the top
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-                items(menuItems) { menuItem ->
-                    MenuItemRow(
-                        menuItem = menuItem,
-                        orderItem = orderItems[menuItem.id],
-                        onQuantityChange = { newItem ->
-                            orderItems = orderItems.toMutableMap().apply {
-                                if (newItem.quantity > 0) {
-                                    put(newItem.menuItem.id, newItem)
-                                } else {
-                                    remove(newItem.menuItem.id)
-                                }
-                            }
-                        }
-                    )
-                }
-                item { // For a little spacing at the bottom, before the bottom bar
-                    Spacer(modifier = Modifier.height(if (totalAmount > 0) 70.dp else 8.dp))
-                }
-            }
-        }
-
-        if (showPaymentDialog) {
-            PaymentDialog(
-                onDismiss = { showPaymentDialog = false },
-                paymentProvider = paymentProvider
-            )
-        }
-    }
-
-    @Composable
-    fun PaymentDialog(
-        onDismiss: () -> Unit,
-        paymentProvider: PaymentProviderInterface
-    ) {
-        Dialog(onDismissRequest = onDismiss) {
-            Card(
-                shape = RoundedCornerShape(16.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .padding(24.dp)
-                        .fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    paymentProvider.PaymentUi()
-                }
-            }
-        }
-    }
-
-    @Composable
-    fun MenuItemRow(
-        menuItem: MenuItem,
-        orderItem: OrderItem?,
-        onQuantityChange: (OrderItem) -> Unit
-    ) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-        ) {
-            Row(
-                modifier = Modifier
-                    .padding(12.dp)
-                    .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Placeholder for Image - In a real app, use Coil or Glide
-                Box(
-                    modifier = Modifier
-                        .size(80.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.secondaryContainer),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (menuItem.drawableResId != null) {
-                        Image(
-                            painter = painterResource(id = menuItem.drawableResId),
-                            contentDescription = menuItem.name,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                    } else {
-                        // Display first letter or a generic icon if no image
-                        Text(
-                            text = menuItem.name.firstOrNull()?.toString() ?: "?",
-                            fontSize = 24.sp,
-                            color = MaterialTheme.colorScheme.onSecondaryContainer
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = menuItem.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = menuItem.description,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "$${String.format("%.2f", menuItem.price)}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                QuantitySelector(
-                    quantity = orderItem?.quantity ?: 0,
-                    onIncrease = {
-                        val currentQuantity = orderItem?.quantity ?: 0
-                        onQuantityChange(OrderItem(menuItem, currentQuantity + 1))
-                    },
-                    onDecrease = {
-                        val currentQuantity = orderItem?.quantity ?: 0
-                        if (currentQuantity > 0) {
-                            onQuantityChange(OrderItem(menuItem, currentQuantity - 1))
-                        }
-                    }
-                )
-            }
-        }
-    }
-
-    @Composable
-    fun QuantitySelector(
-        quantity: Int,
-        onIncrease: () -> Unit,
-        onDecrease: () -> Unit
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(
-                onClick = onDecrease,
-                enabled = quantity > 0,
-                modifier = Modifier.size(36.dp)
-            ) {
-                Icon(Icons.Filled.KeyboardArrowDown, contentDescription = "Decrease quantity")
-            }
-
-            Text(
-                text = quantity.toString(),
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(horizontal = 8.dp),
-                textAlign = TextAlign.Center
-            )
-
-            IconButton(
-                onClick = onIncrease,
-                modifier = Modifier.size(36.dp)
-            ) {
-                Icon(Icons.Filled.KeyboardArrowUp, contentDescription = "Increase quantity")
             }
         }
     }
