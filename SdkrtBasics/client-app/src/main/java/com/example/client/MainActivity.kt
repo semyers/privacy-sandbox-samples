@@ -67,16 +67,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.lifecycleScope
-import androidx.privacysandbox.ui.client.view.SandboxedSdkUi
-import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 import com.example.client.ui.theme.ComposeTutorialTheme
 import com.runtimeaware.sdk.ExistingSdk
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
-    /** Adapter for rendering content from the SDK. */
-    private lateinit var paymentSdkAdapter: SandboxedUiAdapter
-
     private val runtimeAwareSdk = ExistingSdk(this)
 
     // Sample Data (In a real app, this would come from a ViewModel or repository)
@@ -133,26 +128,20 @@ class MainActivity : AppCompatActivity() {
             } else {
                 makeToast("Initialized SDK!")
             }
-            paymentSdkAdapter = runtimeAwareSdk.getSandboxedUiAdapter(
-                APP_DISPLAY_NAME,
-                0.0,
-                {},
-                this@MainActivity
-            )
         }
+        val paymentProvider = PaymentProvider(runtimeAwareSdk, APP_DISPLAY_NAME, this)
         setContent {
             ComposeTutorialTheme {
-                RestaurantMenuScreen(sampleMenuItems)
+                RestaurantMenuScreen(sampleMenuItems, paymentProvider)
             }
         }
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
-    fun RestaurantMenuScreen(menuItems: List<MenuItem>) {
+    fun RestaurantMenuScreen(menuItems: List<MenuItem>, paymentProvider: PaymentProvider) {
         var orderItems by remember { mutableStateOf(mapOf<String, OrderItem>()) }
-        var showPinDialog by remember { mutableStateOf(false) }
-        //var paymentSdkAdapter by remember { mutableStateOf<SandboxedUiAdapter?>(null) }
+        var showPaymentDialog by remember { mutableStateOf(false) }
         val context = LocalContext.current
 
         val totalAmount = orderItems.values.sumOf { it.menuItem.price * it.quantity }
@@ -187,11 +176,10 @@ class MainActivity : AppCompatActivity() {
                             Button(
                                 onClick = {
                                     lifecycleScope.launch {
-                                        paymentSdkAdapter = runtimeAwareSdk.getSandboxedUiAdapter(
-                                            APP_DISPLAY_NAME,
-                                            totalAmount,
-                                            {
-                                                showPinDialog = false
+                                        paymentProvider.initialize(
+                                            totalAmount = totalAmount,
+                                            onConfirm = {
+                                                showPaymentDialog = false
                                                 // In a real app, you would validate the PIN and process the payment
                                                 Toast.makeText(
                                                     context,
@@ -206,9 +194,8 @@ class MainActivity : AppCompatActivity() {
                                                 // Reset order after "payment"
                                                 orderItems = emptyMap()
                                             },
-                                            this@MainActivity
                                         )
-                                        showPinDialog = true
+                                        showPaymentDialog = true
                                     }
                                   },
                                 enabled = totalAmount > 0
@@ -251,35 +238,18 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        if (showPinDialog) {
-            PinEntryDialog(
-                totalAmount = totalAmount,
-                onDismiss = { showPinDialog = false },
-                onConfirm = {
-                    showPinDialog = false
-                    // In a real app, you would validate the PIN and process the payment
-                    Toast.makeText(
-                        context,
-                        "Payment processing for $${
-                            String.format(
-                                "%.2f",
-                                totalAmount
-                            )
-                        }",
-                        Toast.LENGTH_LONG
-                    ).show()
-                    // Reset order after "payment"
-                    orderItems = emptyMap()
-                }
+        if (showPaymentDialog) {
+            PaymentDialog(
+                onDismiss = { showPaymentDialog = false },
+                paymentProvider = paymentProvider
             )
         }
     }
 
     @Composable
-    fun PinEntryDialog(
-        totalAmount: Double,
+    fun PaymentDialog(
         onDismiss: () -> Unit,
-        onConfirm: (String) -> Unit
+        paymentProvider: PaymentProviderInterface
     ) {
         Dialog(onDismissRequest = onDismiss) {
             Card(
@@ -293,16 +263,11 @@ class MainActivity : AppCompatActivity() {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    SandboxedSdkUi(
-                        sandboxedUiAdapter = paymentSdkAdapter,
-                        providerUiOnTop = true,
-                        modifier = Modifier.height(175.dp)
-                    )
+                    paymentProvider.PaymentUi()
                 }
             }
         }
     }
-
 
     @Composable
     fun MenuItemRow(
