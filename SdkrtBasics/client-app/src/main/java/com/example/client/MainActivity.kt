@@ -54,7 +54,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -75,34 +74,10 @@ import com.runtimeaware.sdk.ExistingSdk
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
-    /** Container for rendering content from the SDK. */
-//    private lateinit var bannerAd: BannerAd
+    /** Adapter for rendering content from the SDK. */
     private lateinit var paymentSdkAdapter: SandboxedUiAdapter
 
     private val runtimeAwareSdk = ExistingSdk(this)
-
-//    /** A spinner for selecting the size of the file created in the sandbox. */
-//    private lateinit var fileSizeSpinner: Spinner
-//
-//    /** Represents a file size that can be selected in the UI. */
-//    private data class FileSize(val sizeInMb: Int) {
-//        /** Called when FileSize is shown in the spinner. */
-//        override fun toString() = "$sizeInMb MB"
-//    }
-//
-
-    /** Spinners for selecting food. */
-//    private lateinit var pizzaSpinner: Spinner
-//    private lateinit var saladSpinner: Spinner
-//    private lateinit var cookieSpinner: Spinner
-//    private val orderCount = listOf(
-//        "0",
-//        "1",
-//        "2",
-//        "3",
-//    )
-
-    private var total = 0.0
 
     // Sample Data (In a real app, this would come from a ViewModel or repository)
     val sampleMenuItems = listOf(
@@ -152,12 +127,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        setContentView(R.layout.activity_main)
-//        setContent {
-//            ComposeTutorialTheme {
-//                Conversation(SampleData.conversationSample)
-//            }
-//        }
         lifecycleScope.launch {
             if (!runtimeAwareSdk.initialize()) {
                 makeToast("Failed to initialize SDK")
@@ -166,7 +135,7 @@ class MainActivity : AppCompatActivity() {
             }
             paymentSdkAdapter = runtimeAwareSdk.getSandboxedUiAdapter(
                 APP_DISPLAY_NAME,
-                total,
+                0.0,
                 {},
                 this@MainActivity
             )
@@ -191,7 +160,7 @@ class MainActivity : AppCompatActivity() {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = { Text("The Great Eatery") },
+                    title = { Text(APP_DISPLAY_NAME) },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
                         titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
@@ -312,9 +281,6 @@ class MainActivity : AppCompatActivity() {
         onDismiss: () -> Unit,
         onConfirm: (String) -> Unit
     ) {
-        var pin by rememberSaveable { mutableStateOf("") }
-        val maxPinLength = 4 // Or your desired PIN length
-
         Dialog(onDismissRequest = onDismiss) {
             Card(
                 shape = RoundedCornerShape(16.dp),
@@ -332,57 +298,6 @@ class MainActivity : AppCompatActivity() {
                         providerUiOnTop = true,
                         modifier = Modifier.height(175.dp)
                     )
-//                    Text(
-//                        text = "Enter PIN to Pay",
-//                        style = MaterialTheme.typography.headlineSmall,
-//                        fontWeight = FontWeight.Bold
-//                    )
-//                    Text(
-//                        text = "Amount: $${String.format("%.2f", totalAmount)}",
-//                        style = MaterialTheme.typography.titleMedium
-//                    )
-//
-//                    OutlinedTextField(
-//                        value = pin,
-//                        onValueChange = {
-//                            if (it.length <= maxPinLength && it.all { char -> char.isDigit() }) {
-//                                pin = it
-//                            }
-//                        },
-//                        label = { Text("PIN") },
-//                        singleLine = true,
-//                        visualTransformation = PasswordVisualTransformation(),
-//                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-//                        modifier = Modifier.fillMaxWidth(),
-//                        textStyle = LocalTextStyle.current.copy(
-//                            textAlign = TextAlign.Center,
-//                            fontSize = 20.sp
-//                        ),
-//                        shape = RoundedCornerShape(8.dp)
-//                    )
-//
-//                    Row(
-//                        modifier = Modifier.fillMaxWidth(),
-//                        horizontalArrangement = Arrangement.SpaceAround
-//                    ) {
-//                        Button(
-//                            onClick = onDismiss,
-//                            colors = ButtonDefaults.outlinedButtonColors(),
-//                            border = ButtonDefaults.outlinedButtonBorder
-//                        ) {
-//                            Text("Cancel")
-//                        }
-//                        Button(
-//                            onClick = {
-//                                if (pin.length == maxPinLength) { // Or any other validation
-//                                    onConfirm(pin)
-//                                }
-//                            },
-//                            enabled = pin.length == maxPinLength // Enable only when PIN has sufficient length
-//                        ) {
-//                            Text("Confirm Payment")
-//                        }
-//                    }
                 }
             }
         }
@@ -503,177 +418,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-//        bannerAd = findViewById(R.id.banner_ad)
-//
-//        findViewById<Button>(R.id.request_banner_button).setOnClickListener {
-//            onRequestBannerButtonPressed()
-//        }
-//
-//        pizzaSpinner = findViewById<Spinner>(R.id.pizzas_spinner).apply {
-//            adapter = ArrayAdapter(
-//                this@MainActivity, android.R.layout.simple_spinner_dropdown_item, orderCount)
-//        }
-//        pizzaSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-//            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-//                updateTotal()
-//            }
-//
-//            override fun onNothingSelected(p0: AdapterView<*>?) {
-//
-//            }
-//        }
-//        saladSpinner = findViewById<Spinner>(R.id.salads_spinner).apply {
-//            adapter = ArrayAdapter(
-//                this@MainActivity, android.R.layout.simple_spinner_dropdown_item, orderCount)
-//        }
-//        saladSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-//            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-//                updateTotal()
-//            }
-//
-//            override fun onNothingSelected(p0: AdapterView<*>?) {
-//
-//            }
-//        }
-//        cookieSpinner = findViewById<Spinner>(R.id.cookies_spinner).apply {
-//            adapter = ArrayAdapter(
-//                this@MainActivity, android.R.layout.simple_spinner_dropdown_item, orderCount)
-//        }
-//        cookieSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-//            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-//                updateTotal()
-//            }
-//
-//            override fun onNothingSelected(p0: AdapterView<*>?) {
-//
-//            }
-//        }
-
-//        lifecycleScope.launch {
-//            if (!runtimeAwareSdk.initialize()) {
-//                makeToast("Failed to initialize SDK")
-//            } else {
-//                makeToast("Initialized SDK!")
-//            }
-//        }
-//    }
-
-//    data class Message(val author: String, val body: String)
-//
-//    @Composable
-//    fun MessageCard(msg: Message) {
-//        // Add padding around our message
-//        Row(modifier = Modifier.padding(all = 8.dp)) {
-//            Image(
-//                painter = painterResource(R.drawable.cookie),
-//                contentDescription = "Contact profile picture",
-//                modifier = Modifier
-//                    // Set image size to 40 dp
-//                    .size(40.dp)
-//                    // Clip image to be shaped as a circle
-//                    .clip(CircleShape)
-//                    .border(1.5.dp, MaterialTheme.colorScheme.primary, CircleShape)
-//            )
-//
-//            // Add a horizontal space between the image and the column
-//            Spacer(modifier = Modifier.width(8.dp))
-//
-//            // We keep track if the message is expanded or not in this
-//            // variable
-//            var isExpanded by remember { mutableStateOf(false) }
-//            // surfaceColor will be updated gradually from one color to the other
-//            val surfaceColor by animateColorAsState(
-//                if (isExpanded) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
-//            )
-//
-//            // We toggle the isExpanded variable when we click on this Column
-//            Column(modifier = Modifier.clickable { isExpanded = !isExpanded }) {
-//                Text(
-//                    text = msg.author,
-//                    color = MaterialTheme.colorScheme.secondary,
-//                    style = MaterialTheme.typography.titleSmall
-//                )
-//                // Add a vertical space between the author and message texts
-//                Spacer(modifier = Modifier.height(4.dp))
-//
-//                Surface(
-//                    shape = MaterialTheme.shapes.medium,
-//                    shadowElevation = 1.dp,
-//                    // surfaceColor color will be changing gradually from primary to surface
-//                    color = surfaceColor,
-//                    // animateContentSize will change the Surface size gradually
-//                    modifier = Modifier
-//                        .animateContentSize()
-//                        .padding(1.dp)
-//                ) {
-//                    Text(
-//                        text = msg.body,
-//                        modifier = Modifier.padding(all = 4.dp),
-//                        // If the message is expanded, we display all its content
-//                        // otherwise we only display the first line
-//                        maxLines = if (isExpanded) Int.MAX_VALUE else 1,
-//                        style = MaterialTheme.typography.bodyMedium,
-//                    )
-//                }
-//            }
-//        }
-//    }
-
-//    @Composable
-//    fun Conversation(messages: List<Message>) {
-//        LazyColumn {
-//            items(messages) { message ->
-//                MessageCard(message)
-//            }
-//        }
-//    }
-
-//    private fun onRequestBannerButtonPressed() = lifecycleScope.launch {
-//        bannerAd.loadAd(
-//            this@MainActivity,
-//            APP_DISPLAY_NAME,
-//            total,
-//            shouldStartActivityPredicate(),
-//            false,
-//            onPaymentComplete()
-//        )
-//    }
-
-//    private fun updateTotal() {
-//        total =
-//            9.99 * pizzaSpinner.selectedItemPosition + 7.5 * saladSpinner.selectedItemPosition + 2.75 * cookieSpinner.selectedItemPosition
-//        val textView = findViewById<TextView>(R.id.totalText)
-//        textView.text =
-//            textView.context.getString(R.string.total_text, "$total")
-//    }
-//
-//    private fun onPaymentComplete(): () -> Unit {
-//        return {
-//            val textView = findViewById<TextView>(R.id.totalText)
-//            textView.text =
-//                textView.context.getString(R.string.total_text, "$total - Paid!")
-//            makeToast("Payment complete!")
-//        }
-//    }
-//
-//    private fun shouldStartActivityPredicate(): () -> Boolean {
-//        return { true }
-//    }
-
     private fun makeToast(message: String) {
         runOnUiThread { Toast.makeText(this@MainActivity, message, Toast.LENGTH_SHORT).show() }
     }
 
     companion object {
-        private const val TAG = "SandboxClient"
-
-        /**
-         * Package name of this app. This is something that the SDK might use the identify this
-         * particular app client.
-         *
-         * (Note that in this particular sample it's used to build the banner view label).
-         */
-        private const val PACKAGE_NAME = "com.example.privacysandbox.client"
-        private const val APP_DISPLAY_NAME = "Food Flinger"
+        private const val APP_DISPLAY_NAME = "Munchie Cafe"
     }
 }
