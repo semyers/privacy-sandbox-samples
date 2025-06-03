@@ -28,11 +28,11 @@
         android:background="@android:color/background_light">
 
         <TextView
-            android:id="@+id/banner_header_view"
+            android:id="@+id/payment_header_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="8dp"
-            android:text="@string/banner_ad_label"/>
+            android:text="@string/payment_label"/>
 
         <EditText
             android:id="@+id/payment_input"

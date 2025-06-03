@@ -21,15 +21,20 @@ import android.util.Log
 import androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
-import com.runtimeenabled.api.SdkBannerRequest
+import com.runtimeenabled.api.PaymentUiRequest
 import com.runtimeenabled.api.SdkService
 import com.runtimeenabled.api.SdkServiceFactory
+
+/**
+ * This class represents an SDK that was created before the SDK runtime was available. It is in the
+ * process of migrating to use the SDK runtime. At this point, all of the functionality has been
+ * migrated to the "runtime enabled SDK" and this SDK merely serves as a wrapper.
+ */
 
 class ExistingSdk(private val context: Context) {
 
     /**
-     * Initialize the SDK and In-App adapters. If the SDK failed to initialize, return false, else
-     * true.
+     * Initialize the SDK. If the SDK failed to initialize, return false, else true.
      */
     suspend fun initialize(): Boolean {
         // You can also have a fallback mechanism here, where if the SDK cannot be loaded in the SDK
@@ -41,15 +46,15 @@ class ExistingSdk(private val context: Context) {
     suspend fun getSandboxedUiAdapter(
         message: String,
         amount: Double,
-        onPaymentComplete: () -> Unit,
+        onPaymentSuccess: () -> Unit,
         context: Context
     ): SandboxedUiAdapter {
-        val request = SdkBannerRequest(message, amount)
+        val request = PaymentUiRequest(message, amount)
         return checkNotNull(
             loadSdkIfNeeded(
                 context
-            )?.getBanner(request, PaymentCallback(onPaymentComplete))
-        ) { "No banner Ad received from ad SDK!" }
+            )?.getPaymentUiAdapter(request, PaymentCallback(onPaymentSuccess))
+        ) { "Could not launch payment SDK!" }
     }
 
     /** Keeps a reference to a sandboxed SDK and makes sure it's only loaded once. */
@@ -78,8 +83,8 @@ class ExistingSdk(private val context: Context) {
 
                 val sandboxedSdk = sandboxManagerCompat.loadSdk(SDK_NAME, Bundle.EMPTY)
                 remoteInstance = SdkServiceFactory.wrapToSdkService(sandboxedSdk.getInterface()!!)
-                // Initialise SDK.
-                remoteInstance?.initialise()
+                // Initialize SDK.
+                remoteInstance?.initialize()
                 return remoteInstance
             } catch (e: LoadSdkCompatException) {
                 Log.e(TAG, "Failed to load SDK, error code: ${e.loadSdkErrorCode}", e)

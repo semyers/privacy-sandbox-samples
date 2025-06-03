@@ -21,13 +21,12 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
-import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 import androidx.privacysandbox.ui.core.SessionData
 import androidx.privacysandbox.ui.provider.AbstractSandboxedUiAdapter
 import com.runtimeenabled.R
 import com.runtimeenabled.api.PaymentCallbackInterface
-import com.runtimeenabled.api.SdkBannerRequest
+import com.runtimeenabled.api.PaymentUiRequest
 import com.runtimeenabled.api.SdkSandboxedUiAdapter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -37,17 +36,17 @@ import kotlinx.coroutines.launch
 import java.util.concurrent.Executor
 
 /**
- * Implementation of [SdkSandboxedUiAdapter] that handles payment requests.
+ * Implementation of [SdkSandboxedUiAdapter] that handles requests for the payment UI.
  *
  * This class extends [AbstractSandboxedUiAdapter] and provides the functionality to open
  * UI sessions. The usage of [AbstractSandboxedUiAdapter] simplifies the implementation.
  *
  * @param sdkContext The context of the SDK.
- * @param request The payment request.
+ * @param request The payment UI request.
  */
 class SdkSandboxedUiAdapterImpl(
     private val sdkContext: Context,
-    private val request: SdkBannerRequest,
+    private val request: PaymentUiRequest,
     private val callback: PaymentCallbackInterface,
 ) : AbstractSandboxedUiAdapter(), SdkSandboxedUiAdapter {
     /**
@@ -55,7 +54,7 @@ class SdkSandboxedUiAdapterImpl(
      * The session will handle notifications from and to the client.
      * We consider the client the owner of the SandboxedSdkView.
      *
-     @param context The client's context.
+    @param context The client's context.
      * @param sessionData Constants related to the session, such as the presentation id.
      * @param initialWidth The initial width of the adapter's view.
      * @param initialHeight The initial height of the adapter's view.
@@ -80,33 +79,31 @@ class SdkSandboxedUiAdapterImpl(
 }
 
 /**
- * Implementation of [SandboxedUiAdapter.Session], used for banner ad requests.
+ * Implementation of [SandboxedUiAdapter.Session], used for payment UI requests.
  * This class extends [AbstractSandboxedUiAdapter.AbstractSession] to provide the functionality in
  * cohesion with [AbstractSandboxedUiAdapter]
  *
  * @param clientExecutor The executor to use for client callbacks.
  * @param sdkContext The context of the SDK.
- * @param request The banner ad request.
+ * @param request The payment UI request.
  */
 private class SdkUiSession(
     clientExecutor: Executor,
     private val sdkContext: Context,
-    private val request: SdkBannerRequest,
+    private val request: PaymentUiRequest,
     private val callback: PaymentCallbackInterface,
 ) : AbstractSandboxedUiAdapter.AbstractSession() {
-
-    private val controller = SdkSandboxControllerCompat.from(sdkContext)
 
     /** A scope for launching coroutines in the client executor. */
     private val scope = CoroutineScope(clientExecutor.asCoroutineDispatcher() + Job())
 
-    override val view: View = getAdView()
+    override val view: View = getPaymentView()
 
-    private fun getAdView() : View {
-        var view = View.inflate(sdkContext, R.layout.banner, null).apply {
-            val textView = findViewById<TextView>(R.id.banner_header_view)
+    private fun getPaymentView(): View {
+        val view = View.inflate(sdkContext, R.layout.payment, null).apply {
+            val textView = findViewById<TextView>(R.id.payment_header_view)
             textView.text =
-                context.getString(R.string.banner_ad_label, request.appPackageName, request.amount)
+                context.getString(R.string.payment_label, request.appName, request.amount)
 
             findViewById<Button>(R.id.pay_button).setOnClickListener {
                 scope.launch {
@@ -116,87 +113,6 @@ private class SdkUiSession(
         }
         return view
     }
-//    @Composable
-//    fun PinEntryDialog(
-//        totalAmount: Double,
-//        onDismiss: () -> Unit,
-//        onConfirm: (String) -> Unit
-//    ) {
-//        var pin by rememberSaveable { mutableStateOf("") }
-//        val maxPinLength = 4 // Or your desired PIN length
-//
-//        Dialog(onDismissRequest = onDismiss) {
-//            Card(
-//                shape = RoundedCornerShape(16.dp),
-//                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
-//            ) {
-//                Column(
-//                    modifier = Modifier
-//                        .padding(24.dp)
-//                        .fillMaxWidth(),
-//                    horizontalAlignment = Alignment.CenterHorizontally,
-//                    verticalArrangement = Arrangement.spacedBy(16.dp)
-//                ) {
-//                    SandboxedSdkUi(
-//                        sandboxedUiAdapter = paymentSdkAdapter,
-//                        providerUiOnTop = true,
-//                        modifier = Modifier.wrapContentHeight()
-//                    )
-//                    Text(
-//                        text = "Enter PIN to Pay",
-//                        style = MaterialTheme.typography.headlineSmall,
-//                        fontWeight = FontWeight.Bold
-//                    )
-//                    Text(
-//                        text = "Amount: $${String.format("%.2f", totalAmount)}",
-//                        style = MaterialTheme.typography.titleMedium
-//                    )
-//
-//                    OutlinedTextField(
-//                        value = pin,
-//                        onValueChange = {
-//                            if (it.length <= maxPinLength && it.all { char -> char.isDigit() }) {
-//                                pin = it
-//                            }
-//                        },
-//                        label = { Text("PIN") },
-//                        singleLine = true,
-//                        visualTransformation = PasswordVisualTransformation(),
-//                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
-//                        modifier = Modifier.fillMaxWidth(),
-//                        textStyle = LocalTextStyle.current.copy(
-//                            textAlign = TextAlign.Center,
-//                            fontSize = 20.sp
-//                        ),
-//                        shape = RoundedCornerShape(8.dp)
-//                    )
-//
-//                    Row(
-//                        modifier = Modifier.fillMaxWidth(),
-//                        horizontalArrangement = Arrangement.SpaceAround
-//                    ) {
-//                        Button(
-//                            onClick = onDismiss,
-//                            colors = ButtonDefaults.outlinedButtonColors(),
-//                            border = ButtonDefaults.outlinedButtonBorder
-//                        ) {
-//                            Text("Cancel")
-//                        }
-//                        Button(
-//                            onClick = {
-//                                if (pin.length == maxPinLength) { // Or any other validation
-//                                    onConfirm(pin)
-//                                }
-//                            },
-//                            enabled = pin.length == maxPinLength // Enable only when PIN has sufficient length
-//                        ) {
-//                            Text("Confirm Payment")
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
 
     override fun close() {
         // Notifies that the client has closed the session. It's a good opportunity to dispose

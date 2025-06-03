@@ -24,23 +24,23 @@ import androidx.privacysandbox.ui.core.SessionObserver
 import androidx.privacysandbox.ui.core.SessionObserverContext
 import androidx.privacysandbox.ui.core.SessionObserverFactory
 import com.runtimeenabled.api.PaymentCallbackInterface
-import com.runtimeenabled.api.SdkBannerRequest
+import com.runtimeenabled.api.PaymentUiRequest
 import com.runtimeenabled.api.SdkSandboxedUiAdapter
 import com.runtimeenabled.api.SdkService
 
 class SdkServiceImpl(private val context: Context) : SdkService {
 
-    override suspend fun initialise() {
+    override suspend fun initialize() {
     }
 
     @OptIn(ExperimentalFeatures.DelegatingAdapterApi::class)
-    override suspend fun getBanner(
-        request: SdkBannerRequest,
+    override suspend fun getPaymentUiAdapter(
+        request: PaymentUiRequest,
         callback: PaymentCallbackInterface
     ): SdkSandboxedUiAdapter {
-        val bannerAdAdapter = SdkSandboxedUiAdapterImpl(context, request, callback)
-        bannerAdAdapter.addObserverFactory(SessionObserverFactoryImpl())
-        return bannerAdAdapter
+        val paymentUiAdapter = SdkSandboxedUiAdapterImpl(context, request, callback)
+        paymentUiAdapter.addObserverFactory(SessionObserverFactoryImpl())
+        return paymentUiAdapter
     }
 }
 

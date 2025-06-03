@@ -12,5 +12,5 @@
      limitations under the License.
 -->
 <resources>
-    <string name="banner_ad_label">Submit payment to %1$s for $%2$s</string>
+    <string name="payment_label">Submit payment to %1$s for $%2$s</string>
 </resources>

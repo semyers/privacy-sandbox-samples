@@ -20,7 +20,7 @@ import androidx.privacysandbox.tools.PrivacySandboxService
 @PrivacySandboxService
 interface SdkService {
 
-    suspend fun initialise()
+    suspend fun initialize()
 
-    suspend fun getBanner(request: SdkBannerRequest, callback: PaymentCallbackInterface): SdkSandboxedUiAdapter
+    suspend fun getPaymentUiAdapter(request: PaymentUiRequest, callback: PaymentCallbackInterface): SdkSandboxedUiAdapter
 }

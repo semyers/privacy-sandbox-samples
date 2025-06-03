@@ -18,9 +18,9 @@ package com.runtimeenabled.api
 import androidx.privacysandbox.tools.PrivacySandboxValue
 
 @PrivacySandboxValue
-data class SdkBannerRequest(
-    /** The package name of the app. */
-    val appPackageName: String,
+data class PaymentUiRequest(
+    /** The name of the client app. */
+    val appName: String,
     /** The price to charge the user */
     val amount: Double
 )
