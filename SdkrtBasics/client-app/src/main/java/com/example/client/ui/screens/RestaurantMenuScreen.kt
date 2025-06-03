@@ -50,6 +50,19 @@ fun RestaurantMenuScreen(
 
     val totalAmount = orderItems.values.sumOf { it.menuItem.price * it.quantity }
 
+    val handlePaymentSuccess = {
+        showPaymentDialog = false
+        // In a real app, you would fulfill the order here, e.g.
+        // fulfillOrder(orderItems)
+        Toast.makeText(
+            context,
+            "Your ${orderItems.size} item(s) are on the way!",
+            Toast.LENGTH_LONG
+        ).show()
+        // Reset order after "payment"
+        orderItems = emptyMap()
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -82,27 +95,11 @@ fun RestaurantMenuScreen(
                                 lifecycleScope.launch {
                                     paymentProvider.initialize(
                                         totalAmount = totalAmount,
-                                        onConfirm = {
-                                            showPaymentDialog = false
-                                            // In a real app, you would validate the PIN and process the payment
-                                            Toast.makeText(
-                                                context,
-                                                "Payment processing for $${
-                                                    String.format(
-                                                        "%.2f",
-                                                        totalAmount
-                                                    )
-                                                }",
-                                                Toast.LENGTH_LONG
-                                            ).show()
-                                            // Reset order after "payment"
-                                            orderItems = emptyMap()
-                                        },
+                                        onPaymentSuccess = handlePaymentSuccess,
                                     )
                                     showPaymentDialog = true
                                 }
-                            },
-                            enabled = totalAmount > 0
+                            }
                         ) {
                             Text("Pay Now")
                         }

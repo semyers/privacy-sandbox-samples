@@ -22,7 +22,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.client.data.sampleMenuItems
 import com.example.client.ui.screens.RestaurantMenuScreen
-import com.example.client.ui.theme.ComposeTutorialTheme
+import com.example.client.ui.theme.ClientTheme
 import com.runtimeaware.sdk.ExistingSdk
 import kotlinx.coroutines.launch
 
@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
 
         // Set up the UI
         setContent {
-            ComposeTutorialTheme {
+            ClientTheme {
                 RestaurantMenuScreen(
                     APP_DISPLAY_NAME,
                     sampleMenuItems,
@@ -62,6 +62,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val APP_DISPLAY_NAME = "Munchie Cafe"
+        private const val APP_DISPLAY_NAME = "Ron's Cafe"
     }
 }

@@ -19,12 +19,12 @@ class PaymentProvider(
 
     override suspend fun initialize(
         totalAmount: Double,
-        onConfirm: () -> Unit
+        onPaymentSuccess: () -> Unit
     ) {
         paymentSdkAdapter = runtimeAwareSdk.getSandboxedUiAdapter(
             appDisplayName,
             totalAmount,
-            onConfirm,
+            onPaymentSuccess,
             context
         )
     }
