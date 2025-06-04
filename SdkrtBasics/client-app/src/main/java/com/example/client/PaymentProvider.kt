@@ -34,7 +34,7 @@ class PaymentProvider(
         SandboxedSdkUi(
             sandboxedUiAdapter = paymentSdkAdapter,
             providerUiOnTop = true,
-            modifier = Modifier.height(175.dp)
+            modifier = Modifier.height(520.dp)
         )
     }
 }
