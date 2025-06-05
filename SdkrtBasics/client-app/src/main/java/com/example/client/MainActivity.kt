@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright (C) 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Use a wrapper around the SDK to pass to the UI component
+        // Use an interface to provide abstraction between the SDK and the client
         val paymentProvider = PaymentProvider(runtimeAwareSdk, APP_DISPLAY_NAME, this)
 
         // Set up the UI
